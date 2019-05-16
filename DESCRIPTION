@@ -1,11 +1,11 @@
 Package: MiniChip
-Title: What the Package Does (One Line, Title Case)
+Title: Analyze Chip Data
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Michaela",
+           family = "Schwaiger",
            role = c("aut", "cre"),
-           email = "first.last@example.com")
+           email = "michi@fmi.ch")
 Description: What the package does (one paragraph).
 License: GPL-2
 Encoding: UTF-8
@@ -15,6 +15,8 @@ RoxygenNote: 6.1.0
 Imports:
     graphics
 Depends:
-    ggplot2
+    ggplot2,
+    GenomicRanges,
+    data.table
 Suggests: 
     testthat
