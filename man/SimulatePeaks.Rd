@@ -4,19 +4,23 @@
 \alias{SimulatePeaks}
 \title{SimulatePeaks}
 \usage{
-SimulatePeaks(nSites, peak.widths)
+SimulatePeaks(nSites, peak.widths,
+  chromosomeSizes = "/work/gbioinfo/DB/genomes/mm10/starIndex_BSgenome.Mmusculus.mm10/chrNameLength.txt")
 }
 \arguments{
 \item{nSites}{The number of ranges.}
 
 \item{peak.widths}{A numeric vector of the length nSites containing the desired width of the ranges.}
+
+\item{chromosomeSizes}{A table with two columns: chromosome name, length of the chromosome. The default is
+for the mm10 genome: /work/gbioinfo/DB/genomes/mm10/starIndex_BSgenome.Mmusculus.mm10/chrNameLength.txt}
 }
 \value{
 A GRanges object of randomly chosen genomic ranges of length nSites with widths peak.widths.
 }
 \description{
 This function generates a GRanges object with randomly chosen ranges
-in the Mus musculus mm10 genome.
+in the genome.
 }
 \details{
 This function can be used to shuffle peak regions of your

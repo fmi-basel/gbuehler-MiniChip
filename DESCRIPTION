@@ -13,10 +13,11 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.0
 Imports:
-    graphics
-Depends:
-    ggplot2,
     GenomicRanges,
-    data.table
+    data.table,
+    RColorBrewer,
+    gplots,
+    Rsubread
+Depends:
 Suggests: 
     testthat
