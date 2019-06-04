@@ -31,11 +31,11 @@ SummitHeatmap(peaks, peaknames = "mypeaks", bamFiles,
 \item{PairedEnd}{Are reads in bam files generated with paired-end or single-end sequencing. Default is FALSE (=single-end).}
 }
 \value{
-A list of matrices of the same length as the number of bam files supllied.
+A list of matrices of the same length as the number of bam files supplied.
 Each matrix contains the number of reads (or cpm) in each window (column headers=middle of the window)
 for each peak (rownames=peaknames). If plotHM is TRUE, a heatmap is plotted for each sample as well (each bam file)
 and saved in a directory (in your current working directory) that is named after your peaknames object.
-These heatmaps are clustered individually by euclidian distance.
+These heatmaps are clustered individually.
 }
 \description{
 This function generates a heatmap of different experiments (read counts) around the summits of ChIP peaks.
@@ -46,10 +46,10 @@ This function.
 \examples{
 peaks <- GRanges(
 seqnames = Rle(c("chr1", "chr2", "chr1", "chr3"), c(1, 3, 2, 4)),
-ranges = IRanges(101:110, end = 111:120,
+ranges = IRanges(50101:50110, end = 51111:51120),
 strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),
 summit = 1:10, name = head(letters, 10))
 bamFiles <- c("/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r1_818F1_multi.bam","/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r2_818F3_multi.bam")
-SummitHeatmap(peaks,bamFiles,plotHM=FALSE)
+SummitHeatmap(peaks=peaks,bamFiles=bamFiles,plotHM=FALSE)
 
 }

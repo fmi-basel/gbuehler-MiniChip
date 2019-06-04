@@ -16,20 +16,20 @@
 #' @param PairedEnd Are reads in bam files generated with paired-end or single-end sequencing. Default is FALSE (=single-end).
 #'
 #'
-#' @return A list of matrices of the same length as the number of bam files supllied.
+#' @return A list of matrices of the same length as the number of bam files supplied.
 #' Each matrix contains the number of reads (or cpm) in each window (column headers=middle of the window)
 #' for each peak (rownames=peaknames). If plotHM is TRUE, a heatmap is plotted for each sample as well (each bam file)
 #' and saved in a directory (in your current working directory) that is named after your peaknames object.
-#' These heatmaps are clustered individually by euclidian distance.
+#' These heatmaps are clustered individually.
 #'
 #' @examples
 #' peaks <- GRanges(
 #' seqnames = Rle(c("chr1", "chr2", "chr1", "chr3"), c(1, 3, 2, 4)),
-#' ranges = IRanges(101:110, end = 111:120,
+#' ranges = IRanges(50101:50110, end = 51111:51120),
 #' strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),
 #' summit = 1:10, name = head(letters, 10))
 #' bamFiles <- c("/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r1_818F1_multi.bam","/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r2_818F3_multi.bam")
-#' SummitHeatmap(peaks,bamFiles,plotHM=FALSE)
+#' SummitHeatmap(peaks=peaks,bamFiles=bamFiles,plotHM=FALSE)
 #'
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom GenomicRanges start
@@ -38,7 +38,13 @@
 #' @importFrom GenomicRanges elementMetadata
 #' @importFrom GenomicRanges seqnames
 #' @importFrom Rsubread featureCounts
-#' @importFrom gplots heatmap.2
+#' @importFrom ComplexHeatmap Heatmap
+#' @importFrom ComplexHeatmap HeatmapAnnotation
+#' @importFrom ComplexHeatmap anno_text
+#' @importFrom ComplexHeatmap max_text_width
+#' @importFrom grid gpar
+#' @importFrom grid unit
+#' @importFrom circlize colorRamp2
 #'
 #' @export
 SummitHeatmap <- function(peaks,peaknames="mypeaks",bamFiles,bamNames="myreads",span=2025,step=50,
@@ -71,7 +77,7 @@ SummitHeatmap <- function(peaks,peaknames="mypeaks",bamFiles,bamNames="myreads",
                             minOverlap=2,readExtension3=100,countMultiMappingReads=FALSE,fraction=FALSE,
                             minMQS=10,strandSpecific=0,nthreads=4,verbose=FALSE,isPairedEnd=PairedEnd)
 
-  #extract gene annotation (for gene names and strand)
+  #extract gene annotation (for peak names)
   anno <-  f_counts$annotation[1:(nrow(f_counts$annotation)/length(windows)),]
 
   #extract number of mapped reads for all bam samples
@@ -85,29 +91,36 @@ SummitHeatmap <- function(peaks,peaknames="mypeaks",bamFiles,bamNames="myreads",
     colnames(counts) <- binmids
     rownames(counts) <- anno$GeneID
     cpm <-  ((counts+0.1)/mapped.reads[bam.sample])*1000000
-    counts.log <- log2(cpm)
-
-    if (plotHM == TRUE){
-      #create directory for heatmaps
-      ifelse(!dir.exists(sprintf("heatmaps-%s",peaknames)), dir.create(sprintf("heatmaps-%s",peaknames)), FALSE)
-      #define distance fucntion for heatmaps
-      euc.dist <- function(x){dist(x,method="euclidian")}
-
-      #plot and save heatmaps
-      png(sprintf("heatmaps-%s/heatmap-%s-%s.png",peaknames,peaknames,bamNames[bam.sample]),height=1000,width=400)
-      heatmap.2(counts.log,col=plotcols,distfun=euc.dist,Colv=FALSE,scale="none",trace="none",dendrogram = "none",
-                labRow = "",labCol = binmids,xlab="bins",ylab=sprintf("summits-%s-readcounts-%s",peaknames,bamNames[bam.sample]),
-                key=FALSE)
-      dev.off()
-    } else {
-      next
-    }
+    #counts.log <- log2(cpm)
 
     #prepare counts or cpm for saving as list of matrices
     if (useCPM == TRUE) {
       all.counts[[bam.sample]] <- cpm
     } else {
       all.counts[[bam.sample]] <- counts
+    }
+
+
+    if (plotHM == TRUE){
+      #create directory for heatmaps
+      ifelse(!dir.exists(sprintf("heatmaps-%s",peaknames)), dir.create(sprintf("heatmaps-%s",peaknames)), FALSE)
+      #define colors and window annotations for heatmaps
+      col_fun = circlize::colorRamp2(c(0, 3), c("white", "darkblue"))
+      binnames <- ifelse((binmids/1000)%%1==0,binmids,"")
+
+      #plot and save heatmaps
+      pdf(sprintf("heatmaps-%s/heatmap-%s-%s.pdf",peaknames,peaknames,bamNames[bam.sample]),height=20,width=10)
+      ComplexHeatmap::Heatmap(all.counts[[bam.sample]],name = bamNames[bam.sample], cluster_rows = TRUE, cluster_columns=FALSE,
+              column_order = colnames(all.counts[[bam.sample]]), col = col_fun,
+              column_title = bamNames[bam.sample], column_title_gp = gpar(fontsize = 10, fontface = "bold"),
+              show_row_names = FALSE, show_column_names = FALSE,
+              bottom_annotation = HeatmapAnnotation(
+                text = anno_text(binnames, rot = 45, offset = unit(1, "npc"), just = "right",gp=gpar(fontsize=10,fontface = "italic")),
+                annotation_height = max_text_width(binnames)),use_raster = TRUE, raster_device = "png",raster_quality=1
+      )
+      dev.off()
+    } else {
+      next
     }
   }
 

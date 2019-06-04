@@ -17,7 +17,8 @@ Imports:
     data.table,
     RColorBrewer,
     gplots,
-    Rsubread
-Depends:
+    Rsubread,
+    ComplexHeatmap,
+    circlize
 Suggests: 
     testthat

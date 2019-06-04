@@ -23,7 +23,7 @@ usethis::use_testthat()
 #make a file test-functionname.R and add tests for this function
 #edit DESCRIPTION file:
 # import packages, do not add them under depends
-usethis::use_package("GenomicRanges") #this will automatically add it to imports in description file
+usethis::use_package("ComplexHeatmap") #this will automatically add it to imports in description file
 
 #when edits are made, go to Build, click: Install and Restart
 #then add the documentations:
