@@ -37,4 +37,6 @@ devtools::document() # this crashesR
 #to add to git repository: Commit
 #to add to Github: Push
 
+#add a vignette
+usethis::use_vignette("MiniChip-vignette")
 

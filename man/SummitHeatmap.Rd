@@ -6,7 +6,7 @@
 \usage{
 SummitHeatmap(peaks, peaknames = "mypeaks", bamFiles,
   bamNames = "myreads", span = 2025, step = 50,
-  plotcols = colorRampPalette(brewer.pal(9, "RdPu"))(255),
+  plotcols = circlize::colorRamp2(c(0, 5), c("white", "darkblue")),
   plotHM = TRUE, useCPM = TRUE, PairedEnd = FALSE)
 }
 \arguments{
@@ -22,7 +22,7 @@ SummitHeatmap(peaks, peaknames = "mypeaks", bamFiles,
 
 \item{step}{The window size in which reads are counted/plotted in the heatmap. Default is 50.}
 
-\item{plotcols}{The colors for the heatmap. Default is colorRampPalette(brewer.pal(9,"RdPu"))(255).}
+\item{plotcols}{The colors for the heatmap. Default is circlize::colorRamp2(c(0, 5), c("white", "darkblue")).}
 
 \item{plotHM}{Also plot the heatmap or only count the reads in the windows. Default is TRUE.}
 
@@ -41,10 +41,11 @@ These heatmaps are clustered individually.
 This function generates a heatmap of different experiments (read counts) around the summits of ChIP peaks.
 }
 \details{
-This function.
+This function generates a heatmap of different experiments (read counts) around the summits of ChIP peaks.
 }
 \examples{
-peaks <- GRanges(
+libary(GenomicRanges)
+peaks <- GenomicRanges::GRanges(
 seqnames = Rle(c("chr1", "chr2", "chr1", "chr3"), c(1, 3, 2, 4)),
 ranges = IRanges(50101:50110, end = 51111:51120),
 strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),

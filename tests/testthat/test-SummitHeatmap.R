@@ -3,8 +3,8 @@ context("SummitHeatmap")
 test_that("SummitHeatmap generates window counts as expected", {
   expect_error(SummitHeatmap(plotHM=FALSE))
 
-  library(GenomicRanges)
-  peaks <- GRanges(
+  #library(GenomicRanges)
+  peaks <- GenomicRanges::GRanges(
   seqnames = Rle(c("chr1", "chr2", "chr1", "chr3"), c(1, 3, 2, 4)),
   ranges = IRanges(50101:50110, end = 51111:51120),
   strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),
@@ -12,7 +12,7 @@ test_that("SummitHeatmap generates window counts as expected", {
   bamFiles <- c("/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r1_818F1_multi.bam", "/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r2_818F3_multi.bam")
   expect_error(SummitHeatmap(peaks=peaks,bamFiles=bamFiles,plotHM=FALSE))
 
-  peaks <- GRanges(
+  peaks <- GenomicRanges::GRanges(
     seqnames = Rle(c("chr1", "chr2", "chr1", "chr3"), c(1, 3, 2, 4)),
     ranges = IRanges(50101:50110, end = 51111:51120),
     strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),
@@ -22,7 +22,7 @@ test_that("SummitHeatmap generates window counts as expected", {
 })
 
 test_that("SummitHeatmap returns list of count matrices and plots heatmap as expected", {
-  library(GenomicRanges)
+  #library(GenomicRanges)
   peaks <- GRanges(
     seqnames = Rle(c("chr1", "chr2", "chr1", "chr3"), c(1, 3, 2, 4)),
     ranges = IRanges(40101:40110, end = 51111:51120),

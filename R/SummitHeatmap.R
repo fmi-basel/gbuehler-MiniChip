@@ -2,7 +2,7 @@
 #'
 #' @description This function generates a heatmap of different experiments (read counts) around the summits of ChIP peaks.
 #'
-#' @details This function.
+#' @details This function generates a heatmap of different experiments (read counts) around the summits of ChIP peaks.
 #'
 #' @param peaks A Granges object containing your ChIP peaks. Must include seqnames (chromosomes), start, end, strand, summit, and name.
 #' @param peaknames A character string that describes your peaks. Default is "mypeaks".
@@ -10,7 +10,7 @@
 #' @param bamNames A name to describe the bam files you are using (for example: "H3K9me3_reads"). Defaults to "myreads".
 #' @param span The distance from the peak summit to the left and right that you want your heatmap to extand to. Default is 2025.
 #' @param step The window size in which reads are counted/plotted in the heatmap. Default is 50.
-#' @param plotcols The colors for the heatmap. Default is colorRampPalette(brewer.pal(9,"RdPu"))(255).
+#' @param plotcols The colors for the heatmap. Default is circlize::colorRamp2(c(0, 5), c("white", "darkblue")).
 #' @param plotHM Also plot the heatmap or only count the reads in the windows. Default is TRUE.
 #' @param useCPM Normalize the number of reads per window to the total number of reads in the sample (bam file). Default is TRUE.
 #' @param PairedEnd Are reads in bam files generated with paired-end or single-end sequencing. Default is FALSE (=single-end).
@@ -23,7 +23,8 @@
 #' These heatmaps are clustered individually.
 #'
 #' @examples
-#' peaks <- GRanges(
+#' libary(GenomicRanges)
+#' peaks <- GenomicRanges::GRanges(
 #' seqnames = Rle(c("chr1", "chr2", "chr1", "chr3"), c(1, 3, 2, 4)),
 #' ranges = IRanges(50101:50110, end = 51111:51120),
 #' strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),
@@ -31,24 +32,27 @@
 #' bamFiles <- c("/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r1_818F1_multi.bam","/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r2_818F3_multi.bam")
 #' SummitHeatmap(peaks=peaks,bamFiles=bamFiles,plotHM=FALSE)
 #'
-#' @importFrom RColorBrewer brewer.pal
 #' @importFrom GenomicRanges start
 #' @importFrom GenomicRanges end
 #' @importFrom GenomicRanges strand
 #' @importFrom GenomicRanges elementMetadata
 #' @importFrom GenomicRanges seqnames
+#' @importFrom GenomicRanges GRanges
 #' @importFrom Rsubread featureCounts
 #' @importFrom ComplexHeatmap Heatmap
 #' @importFrom ComplexHeatmap HeatmapAnnotation
 #' @importFrom ComplexHeatmap anno_text
 #' @importFrom ComplexHeatmap max_text_width
+#' @importFrom ComplexHeatmap draw
 #' @importFrom grid gpar
 #' @importFrom grid unit
 #' @importFrom circlize colorRamp2
+#' @importFrom grDevices pdf
+#' @importFrom grDevices dev.off
 #'
 #' @export
 SummitHeatmap <- function(peaks,peaknames="mypeaks",bamFiles,bamNames="myreads",span=2025,step=50,
-                           plotcols=colorRampPalette(brewer.pal(9,"RdPu"))(255),plotHM=TRUE,useCPM=TRUE,PairedEnd=FALSE){
+                           plotcols=circlize::colorRamp2(c(0, 5), c("white", "darkblue")),plotHM=TRUE,useCPM=TRUE,PairedEnd=FALSE){
   #test ifGranges object has all required columns
   if(is.null(peaks$summit)) { stop("Please make sure your peaks GRanges object has a summit metadata culumn")}
   #make the summit of the peak the start and end, then define the whole heatmap region
@@ -105,21 +109,24 @@ SummitHeatmap <- function(peaks,peaknames="mypeaks",bamFiles,bamNames="myreads",
       #create directory for heatmaps
       ifelse(!dir.exists(sprintf("heatmaps-%s",peaknames)), dir.create(sprintf("heatmaps-%s",peaknames)), FALSE)
       #define colors and window annotations for heatmaps
-      col_fun = circlize::colorRamp2(c(0, 3), c("white", "darkblue"))
+      #col_fun = circlize::colorRamp2(c(0, 3), c("white", "darkblue"))
       binnames <- ifelse((binmids/1000)%%1==0,binmids,"")
 
       #plot and save heatmaps
-      pdf(sprintf("heatmaps-%s/heatmap-%s-%s.pdf",peaknames,peaknames,bamNames[bam.sample]),height=20,width=10)
-      ComplexHeatmap::Heatmap(all.counts[[bam.sample]],name = bamNames[bam.sample], cluster_rows = TRUE, cluster_columns=FALSE,
-              column_order = colnames(all.counts[[bam.sample]]), col = col_fun,
-              column_title = bamNames[bam.sample], column_title_gp = gpar(fontsize = 10, fontface = "bold"),
-              show_row_names = FALSE, show_column_names = FALSE,
-              bottom_annotation = HeatmapAnnotation(
-                text = anno_text(binnames, rot = 45, offset = unit(1, "npc"), just = "right",gp=gpar(fontsize=10,fontface = "italic")),
-                annotation_height = max_text_width(binnames)),use_raster = TRUE, raster_device = "png",raster_quality=1
+      ht <- ComplexHeatmap::Heatmap(all.counts[[bam.sample]],name = bamNames[bam.sample], cluster_rows = TRUE, cluster_columns=FALSE,
+                                    column_order = colnames(all.counts[[bam.sample]]), col = plotcols,
+                                    column_title = bamNames[bam.sample], column_title_gp = gpar(fontsize = 10, fontface = "bold"),
+                                    show_row_names = FALSE, show_column_names = FALSE,show_row_dend = FALSE,
+                                    bottom_annotation = HeatmapAnnotation(
+                                      text = anno_text(binnames, rot = 45, offset = unit(1, "npc"), just = "right",gp=gpar(fontsize=10,fontface = "italic")),
+                                      annotation_height = max_text_width(binnames)),use_raster = TRUE, raster_device = "png",raster_quality=1
       )
+
+      pdf(sprintf("heatmaps-%s/heatmap-%s-%s.pdf",peaknames,peaknames,bamNames[bam.sample]),height=20,width=10)
+      ComplexHeatmap::draw(ht)
       dev.off()
-    } else {
+
+        } else {
       next
     }
   }

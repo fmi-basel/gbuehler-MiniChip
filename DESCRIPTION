@@ -6,19 +6,24 @@ Authors@R:
            family = "Schwaiger",
            role = c("aut", "cre"),
            email = "michi@fmi.ch")
-Description: What the package does (one paragraph).
+Description: This package helps with ChIPseq analysis. The function SimulatePeaks shuffles peaks (any GRanges object) in the genome. The function SummitHeatmaps calulcates and plots heatmaps around peak summits (any GRanges object).
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.0
+Depends:
+    GenomicRanges
 Imports:
-    GenomicRanges,
     data.table,
     RColorBrewer,
-    gplots,
     Rsubread,
     ComplexHeatmap,
-    circlize
+    circlize,
+    grid,
+    grDevices
 Suggests: 
-    testthat
+    testthat,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
