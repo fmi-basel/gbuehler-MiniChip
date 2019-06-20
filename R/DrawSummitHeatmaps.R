@@ -21,6 +21,13 @@
 #' @importFrom grid unit
 #' @importFrom circlize colorRamp2
 #'
+#' @examples
+#'counts <- list(matrix(rnorm(21000,2,1),ncol=21,nrow=100,dimnames=list(1:100,-10:10)),
+#'               matrix(rnorm(21000,2,1),ncol=21,nrow=100,dimnames=list(1:100,-10:10)))
+#'bamNames <- c("counts1","counts2")
+#'names(counts) <- bamNames
+#'DrawSummitHeatmaps(counts,bamNames)
+#'
 #' @export
 DrawSummitHeatmaps <- function(counts, bamNames, nicebamNames = bamNames, plotcols = circlize::colorRamp2(c(0, 3), c("white", "darkblue"))){
 order.sample <- 1

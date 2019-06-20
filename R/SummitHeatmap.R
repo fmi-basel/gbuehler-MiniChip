@@ -23,7 +23,6 @@
 #' These heatmaps are clustered individually.
 #'
 #' @examples
-#' libary(GenomicRanges)
 #' peaks <- GenomicRanges::GRanges(
 #' seqnames = Rle(c("chr1", "chr2", "chr1", "chr3"), c(1, 3, 2, 4)),
 #' ranges = IRanges(50101:50110, end = 51111:51120),
@@ -33,7 +32,9 @@
 #' SummitHeatmap(peaks=peaks,bamFiles=bamFiles,plotHM=FALSE)
 #'
 #' @importFrom GenomicRanges start
+#' @importFrom GenomicRanges start<-
 #' @importFrom GenomicRanges end
+#' @importFrom GenomicRanges end<-
 #' @importFrom GenomicRanges strand
 #' @importFrom GenomicRanges elementMetadata
 #' @importFrom GenomicRanges seqnames

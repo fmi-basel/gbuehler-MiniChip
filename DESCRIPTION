@@ -16,12 +16,12 @@ Depends:
     GenomicRanges
 Imports:
     data.table,
-    RColorBrewer,
     Rsubread,
     ComplexHeatmap,
     circlize,
     grid,
-    grDevices
+    grDevices,
+    IRanges
 Suggests: 
     testthat,
     knitr,

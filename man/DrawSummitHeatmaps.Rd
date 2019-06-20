@@ -26,3 +26,11 @@ This function plots heatmaps of pre-calculated read counts around the summits of
 \details{
 This function plots heatmaps of pre-calculated read counts around the summits of ChIP peaks.
 }
+\examples{
+counts <- list(matrix(rnorm(21000,2,1),ncol=21,nrow=100,dimnames=list(1:100,-10:10)),
+              matrix(rnorm(21000,2,1),ncol=21,nrow=100,dimnames=list(1:100,-10:10)))
+bamNames <- c("counts1","counts2")
+names(counts) <- bamNames
+DrawSummitHeatmaps(counts,bamNames)
+
+}

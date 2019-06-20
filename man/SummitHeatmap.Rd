@@ -44,7 +44,6 @@ This function generates a heatmap of different experiments (read counts) around 
 This function generates a heatmap of different experiments (read counts) around the summits of ChIP peaks.
 }
 \examples{
-libary(GenomicRanges)
 peaks <- GenomicRanges::GRanges(
 seqnames = Rle(c("chr1", "chr2", "chr1", "chr3"), c(1, 3, 2, 4)),
 ranges = IRanges(50101:50110, end = 51111:51120),

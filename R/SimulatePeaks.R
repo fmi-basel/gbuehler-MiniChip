@@ -19,6 +19,8 @@
 #' SimulatePeaks(1000,rep(100,1000))
 #'
 #' @importFrom data.table data.table
+#' @importFrom data.table :=
+#' @importFrom data.table .N
 #' @importFrom utils read.table
 #' @importFrom GenomicRanges makeGRangesFromDataFrame
 #'
