@@ -10,8 +10,7 @@
 #'
 #' @param nSites The number of ranges.
 #' @param peak.widths A numeric vector of the length nSites containing the desired width of the ranges.
-#' @param chromosomeSizes A table with two columns: chromosome name, length of the chromosome. The default is
-#' for the mm10 genome: /work/gbioinfo/DB/genomes/mm10/starIndex_BSgenome.Mmusculus.mm10/chrNameLength.txt
+#' @param chromosomeSizes A table with two columns: chromosome name, length of the chromosome.
 #'
 #' @return A GRanges object of randomly chosen genomic ranges of length nSites with widths peak.widths.
 #'
@@ -25,7 +24,7 @@
 #' @importFrom GenomicRanges makeGRangesFromDataFrame
 #'
 #' @export
-SimulatePeaks <- function(nSites,peak.widths,chromosomeSizes="/work/gbioinfo/DB/genomes/mm10/starIndex_BSgenome.Mmusculus.mm10/chrNameLength.txt"){
+SimulatePeaks <- function(nSites,peak.widths,chromosomeSizes){
   chromSizes <- read.table(chromosomeSizes)
   # define chromosomes and regions on them where peaks can fall onto without obtaining negative starting positions in the end
   chromosomes <- data.table(chromosome=chromSizes$V1[chromSizes$V2 > max(peak.widths)], start=max(peak.widths), end=chromSizes$V2[chromSizes$V2 > max(peak.widths)])

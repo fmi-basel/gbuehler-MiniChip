@@ -11,17 +11,31 @@ License: GPL-2
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.1.0
+RoxygenNote: 7.1.0
 Depends:
     GenomicRanges
 Imports:
-    data.table,
+   data.table,
     Rsubread,
     ComplexHeatmap,
     circlize,
     grid,
     grDevices,
-    IRanges
+    IRanges,
+    ggplot2,
+    BSgenome,
+    BSgenome.Mmusculus.UCSC.mm10,
+    TxDb.Mmusculus.UCSC.mm10.knownGene,
+    Biostrings,
+    plyr,
+    reshape2,
+    GenomicFeatures,
+    tidyr,
+    tidyselect,
+    SummarizedExperiment,
+    csaw,
+    viridis,
+    parallel
 Suggests: 
     testthat,
     knitr,
