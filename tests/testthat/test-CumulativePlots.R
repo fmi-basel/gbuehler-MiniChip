@@ -5,19 +5,25 @@ context("CumulativePlots")
 #})
 
 test_that("CumulativePlots uses a list of count matrices and generates plots as expected", {
-  peaks <- GRanges(
-    seqnames = Rle(c("chr1", "chr2", "chr1", "chr3"), c(1, 3, 2, 4)),
-    ranges = IRanges(40101:40110, end = 51111:51120),
-    strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),
-    name = head(letters, 10), summit = 1:10)
-  names(peaks) <- elementMetadata(peaks)[,"name"]
-  bamFiles <- c("/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r1_818F1_multi.bam", "/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r2_818F3_multi.bam")
-  res <- SummitHeatmap(peaks=peaks,bamFiles=bamFiles,bamNames=c("reads1","reads2"))
+  peaks1.d <- read.table(system.file("extdata", "Adnp_rep1_chr11_peaks.narrowPeak", package = "MiniChip"),header=FALSE)
+  names(peaks1.d) <- c("chr","start","end","name","score","empty","foldchange","pvalue","qvalue","summit")
+  peaks <- makeGRangesFromDataFrame(peaks1.d,
+                                     keep.extra.columns=TRUE,
+                                     ignore.strand=TRUE,
+                                     seqinfo=NULL,
+                                     seqnames.field=c("chr"),
+                                     start.field=c("start"),
+                                     end.field=c("end"),
+                                     starts.in.df.are.0based=FALSE)
+  bamFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bam$")
+  bamNames <- gsub(paste(system.file("extdata", package = "MiniChip"),"/",sep=""),"",bamFiles)
+  bamNames <- gsub("_chr11.bam","",bamNames)
+  res <- SummitHeatmap(peaks=peaks,bamFiles=bamFiles,bamNames=bamNames)
 
   mean.plots <- CumulativePlots(res,bamNames = names(res),
-                               summarizing = "mean",overlapNames = names(peaks))
-  expect_that(is.numeric(mean.plots$overlap1)=="TRUE")
-#  expect_error(CumulativePlots(res, bamNames = names(res), summarizing = "mean"))
-#  expect_error(CumulativePlots(res, bamNames = names(res), summarizing = "average",overlapNames = names(peaks)))
+                               summarizing = "mean",overlapNames = "NA",plot=FALSE)
+ # expect_that(is.numeric(mean.plots$overlap2)=="TRUE")
+  expect_error(CumulativePlots(res, bamNames = names(res), summarizing = "mean",span=50,step=2000))
+  expect_error(CumulativePlots(res, bamNames = names(res), summarizing = "average",overlapNames = names(peaks)))
 
 })

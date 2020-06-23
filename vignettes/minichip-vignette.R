@@ -16,9 +16,9 @@ suppressPackageStartupMessages({
 })
 
 ## -----------------------------------------------------------------------------
-peaks1.d <- read.table(system.file("extdata", "Adnp_rep1_chr10-11_peaks.narrowPeak", package = "MiniChip"),header=FALSE)
-peaks2.d <- read.table(system.file("extdata", "Adnp_rep2_chr10-11_peaks.narrowPeak", package = "MiniChip"),header=FALSE)
-peaks3.d <- read.table(system.file("extdata", "Adnp_rep3_chr10-11_peaks.narrowPeak", package = "MiniChip"),header=FALSE)
+peaks1.d <- read.table(system.file("extdata", "Adnp_rep1_chr11_peaks.narrowPeak", package = "MiniChip"),header=FALSE)
+peaks2.d <- read.table(system.file("extdata", "Adnp_rep2_chr11_peaks.narrowPeak", package = "MiniChip"),header=FALSE)
+peaks3.d <- read.table(system.file("extdata", "Adnp_rep3_chr11_peaks.narrowPeak", package = "MiniChip"),header=FALSE)
 
 names(peaks1.d) <- c("chr","start","end","name","score","empty","foldchange","pvalue","qvalue","summit")
 names(peaks2.d) <- c("chr","start","end","name","score","empty","foldchange","pvalue","qvalue","summit")
@@ -74,7 +74,7 @@ peaks
 #  randomize peak locations
 nSites <- length(peaks)
 peak.widths <- width(peaks)
-random.peaks <-  SimulatePeaks(nSites,peak.widths,chromosomeSizes=system.file("extdata", "chrNameLength_mm10_chr10-11.txt", package = "MiniChip"))
+random.peaks <-  SimulatePeaks(nSites,peak.widths,chromosomeSizes=system.file("extdata", "chrNameLength_mm10_chr11.txt", package = "MiniChip"))
 
 ## -----------------------------------------------------------------------------
 #select bam files from Adnp experiment
@@ -86,7 +86,7 @@ bamFiles
 
 ## -----------------------------------------------------------------------------
 bamNames <- gsub(paste(system.file("extdata", package = "MiniChip"),"/",sep=""),"",bamFiles)
-bamNames <- gsub("_chr10_11.bam","",bamNames)
+bamNames <- gsub("_chr11.bam","",bamNames)
 bamNames
 
 ## ----  fig.height=5, fig.width=10---------------------------------------------
