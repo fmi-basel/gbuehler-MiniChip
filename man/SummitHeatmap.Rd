@@ -4,44 +4,73 @@
 \alias{SummitHeatmap}
 \title{SummitHeatmap}
 \usage{
-SummitHeatmap(peaks, peaknames = "mypeaks", bamFiles,
-  bamNames = "myreads", span = 2025, step = 50,
-  plotcols = circlize::colorRamp2(c(0, 5), c("white", "darkblue")),
-  plotHM = TRUE, useCPM = TRUE, PairedEnd = FALSE)
+SummitHeatmap(
+  peaks,
+  bamFiles,
+  bamNames = "myreads",
+  span = 2025,
+  step = 50,
+  minOverlap = 1,
+  useCPM = TRUE,
+  PairedEnd = FALSE,
+  minMQS = 255,
+  strand = 0,
+  splitOnly = FALSE,
+  nonSplitOnly = FALSE,
+  readExtension3 = 0,
+  readShiftSize = 0,
+  requireBothEndsMapped = FALSE,
+  read2pos = 5
+)
 }
 \arguments{
-\item{peaks}{A Granges object containing your ChIP peaks. Must include seqnames (chromosomes), start, end, strand, summit, and name.}
-
-\item{peaknames}{A character string that describes your peaks. Default is "mypeaks".}
+\item{peaks}{A Granges object containing your positions of interest. Must include seqnames (chromosomes), start, end, strand, and name.}
 
 \item{bamFiles}{The filenames (including full path) of the bam files containing the reads you want to count around the peak summits.}
 
 \item{bamNames}{A name to describe the bam files you are using (for example: "H3K9me3_reads"). Defaults to "myreads".}
 
-\item{span}{The distance from the peak summit to the left and right that you want your heatmap to extand to. Default is 2025.}
+\item{span}{The distance from the peak center to the left and right that you want your heatmap to extand to. Default is 2025.}
 
 \item{step}{The window size in which reads are counted/plotted in the heatmap. Default is 50.}
 
-\item{plotcols}{The colors for the heatmap. Default is circlize::colorRamp2(c(0, 5), c("white", "darkblue")).}
-
-\item{plotHM}{Also plot the heatmap or only count the reads in the windows. Default is TRUE.}
+\item{minOverlap}{The minimum overlap of a read with the window for the read to be counted. Default = 1.}
 
 \item{useCPM}{Normalize the number of reads per window to the total number of reads in the sample (bam file). Default is TRUE.}
 
 \item{PairedEnd}{Are reads in bam files generated with paired-end or single-end sequencing. Default is FALSE (=single-end).}
+
+\item{minMQS}{The minimum mapping quality. Default is 255, which eliminates multimapping reads when STAR was used to generate bam files.}
+
+\item{strand}{Strand specific sequencing? If the reads in the bam file are derived from both strands (usually the case for ChIP experiments),
+use 0 (default). 1 or 2 are the strans specific options (as in feature counts).}
+
+\item{splitOnly}{Should only split reads (for example spliced reads) be counted? FALSE by default.}
+
+\item{nonSplitOnly}{Should only non-split reads (for example not spliced reads) be counted? FALSE by default.}
+
+\item{readExtension3}{integer giving the number of bases extended downstream from 3' end of each read. 0 by default. Negative value is not allowed.}
+
+\item{readShiftSize}{integer specifying the number of bases the reads will be shifted downstream by. 100 by default. Negative value is not allowed.}
+
+\item{requireBothEndsMapped}{logical indicating if both ends from the same fragment are required to be successfully aligned before the fragment can be assigned to a feature or meta-feature. This parameter is only appliable when isPairedEnd is TRUE.}
+
+\item{read2pos}{Specifying whether each read should be reduced to its 5' most base or 3' most base. It has three possible values: NULL, 5 (denoting 5' most base) and 3 (denoting 3' most base).
+Default value is 5, ie. the 5' end of the read will be counted. If a read is reduced to a single base, only that base will be considered for the read assignment.
+Read reduction is performed after read shifting and extension.}
 }
 \value{
 A list of matrices of the same length as the number of bam files supplied.
 Each matrix contains the number of reads (or cpm) in each window (column headers=middle of the window)
-for each peak (rownames=peaknames). If plotHM is TRUE, a heatmap is plotted for each sample as well (each bam file)
-and saved in a directory (in your current working directory) that is named after your peaknames object.
-These heatmaps are clustered individually.
+for each position of interest, which was the start coordinate in the supplied GRanges object (rownames=peaknames).
 }
 \description{
-This function generates a heatmap of different experiments (read counts) around the summits of ChIP peaks.
+Generate heatmaps of read counts around positions of interest in a genome.
 }
 \details{
-This function generates a heatmap of different experiments (read counts) around the summits of ChIP peaks.
+This function generates heatmaps of different experiments (read counts) around positions of interest in the genome,
+for example the summits of ChIP peaks, or transcription start sites. The center of your GRanges object defines the coordinates
+of these positions of interest (eg peak summits, TSSs). Features that lie on the minus strand will be reversed in the final output.
 }
 \examples{
 peaks <- GenomicRanges::GRanges(
@@ -50,6 +79,6 @@ ranges = IRanges(50101:50110, end = 51111:51120),
 strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),
 summit = 1:10, name = head(letters, 10))
 bamFiles <- c("/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r1_818F1_multi.bam","/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r2_818F3_multi.bam")
-SummitHeatmap(peaks=peaks,bamFiles=bamFiles,plotHM=FALSE)
+SummitHeatmap(peaks=peaks,bamFiles=bamFiles)
 
 }
