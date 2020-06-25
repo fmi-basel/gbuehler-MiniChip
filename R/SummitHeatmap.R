@@ -36,7 +36,7 @@
 #' ranges = IRanges(50101:50110, end = 51111:51120),
 #' strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),
 #' summit = 1:10, name = head(letters, 10))
-#' bamFiles <- c("/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r1_818F1_multi.bam","/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r2_818F3_multi.bam")
+#' bamFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bam$")
 #' SummitHeatmap(peaks=peaks,bamFiles=bamFiles)
 #'
 #' @importFrom GenomicRanges start
