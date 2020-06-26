@@ -103,8 +103,7 @@ names(summits) <- elementMetadata(summits)[,"name"]
 counts <- SummitHeatmap(summits,bamFiles,bamNames,span,step,useCPM=TRUE,readShiftSize=75)
 
 ## ----heatmap, fig.height=10, fig.width=8--------------------------------------
-nicebamNames <- bamNames
-ht_list <- DrawSummitHeatmaps(counts[c(1,2,3)], bamNames[c(1,2,3)], nicebamNames[c(1,2,3)], orderSample=1, use.log=TRUE,
+ht_list <- DrawSummitHeatmaps(counts[c(1,2,3)], bamNames[c(1,2,3)],orderSample=1, use.log=TRUE,
                               bottomCpm=c(0,0,0), medianCpm = c(2,2,2), topCpm = c(4,4,4), orderWindows=2, TargetHeight=500)
 draw(ht_list, padding = unit(c(3, 8, 8, 2), "mm"))
 

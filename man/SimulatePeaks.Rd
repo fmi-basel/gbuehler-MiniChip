@@ -7,14 +7,15 @@
 SimulatePeaks(nSites, peak.widths, chromosomeSizes)
 }
 \arguments{
-\item{nSites}{The number of ranges.}
+\item{nSites}{Integer scalar giving the number of desired output ranges.}
 
-\item{peak.widths}{A numeric vector of the length nSites containing the desired width of the ranges.}
+\item{peak.widths}{A numeric vector of the length given in \code{nSites} containing the desired width of the ranges.}
 
-\item{chromosomeSizes}{A table with two columns: chromosome name, length of the chromosome.}
+\item{chromosomeSizes}{A table with two columns: chromosome name, length of the chromosome.
+This defines the search space for choosing random regions.}
 }
 \value{
-A GRanges object of randomly chosen genomic ranges of length nSites with widths peak.widths.
+A GRanges object of randomly chosen genomic ranges of length \code{nSites} with widths \code{peak.widths}.
 }
 \description{
 This function generates a GRanges object with randomly chosen ranges
@@ -27,6 +28,6 @@ can be used as control regions for further analysis, for example, when
 testing the overlap of your peaks with genomic annotations (genes, repeats,...).
 }
 \examples{
-SimulatePeaks(1000,rep(100,1000))
+SimulatePeaks(1000,rep(100,1000),chromosomeSizes=system.file("extdata", "chrNameLength_mm10_chr11.txt", package = "MiniChip"))
 
 }

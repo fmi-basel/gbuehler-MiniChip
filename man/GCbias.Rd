@@ -19,41 +19,44 @@ GCbias(
 )
 }
 \arguments{
-\item{bamFiles}{The filenames (including full path) of the bam files containing the reads you want to count around the peak summits.}
+\item{bamFiles}{Character vector containing the filenames filenames (including the full path) of read alignment files in bam format.}
 
-\item{bamNames}{A name to describe the bam files you are using (for example: "H3K9me3_reads"). If no names are supplied, the full bamFiles strings are used.}
+\item{bamNames}{Character vector containing the names to describe the \code{bamFiles} you are using (for example: "H3K9me3_reads"). If no names are supplied, the full \code{bamFiles} names are used.}
 
-\item{minMQS}{The minimum mapping quality. Default is 255, which eliminates multimapping reads when STAR was used to generate bam files.}
+\item{minMQS}{Integer scalar, specifying the minimum mapping quality that a read must have to be included. Default is 255, which eliminates multimapping reads in case the STAR aligner was used to generate the \code{bamFiles}.}
 
-\item{maxFrag}{An integer scalar, specifying the maximum fragment length corresponding to a read pair. Defaults to 500 base pairs.}
+\item{maxFrag}{Integer scalar, specifying the maximum fragment length corresponding to a read pair. Defaults to 500 base pairs.}
 
-\item{pe}{A string indicating whether paired-end data is present; set to "none" (the default), "both", "first" or "second".}
+\item{pe}{Character scalar indicating whether paired-end data is present; set to "none" (the default), "both", "first" or "second".}
 
-\item{restrict}{A character vector containing the names of allowable chromosomes from which reads will be extracted. Default is "chr1".}
+\item{restrict}{Character vector containing the names of allowable chromosomes from which reads will be extracted. Default is "chr1".}
 
-\item{winWidth}{An integer scalar specifying the width of the window, in which reads are counted and GC content calculated. Default is 5000 base pairs.}
+\item{winWidth}{Integer scalar specifying the width of the window, in which reads are counted and GC content calculated. Default is 5000 base pairs.}
 
-\item{col}{Color scheme for the plots. Default is "plasma" from the viridis package.}
+\item{col}{Color scheme for the smooth scatter plots. If not provided, viridis::inferno is used.}
 
-\item{genome}{A BSGenome object for the species you are analyzing. Required parameter. For example,use BSgenome.Mmusculus.UCSC.mm10 for mouse.}
+\item{genome}{BSGenome object. Required parameter. For example,use BSgenome.Mmusculus.UCSC.mm10 for mouse.}
 
-\item{GCprob}{Should the GC content be displayed as absolute counts (GCprob=FALSE) or as fraction of GCs (GCprob=TRUE,default).}
+\item{GCprob}{Logical scalar, indicating wether the GC content should be displayed as absolute counts (GCprob=FALSE) or as fraction of GCs (GCprob=TRUE,default).}
 
-\item{span}{Span that is used for loess trendline. Default= 0.1}
+\item{span}{Numeric scalar specifying the span that is used for loess trendline. Default= 0.1}
 }
 \value{
-A smooth Scatter Plot for every suuplied alignment file: The number of Gs and Cs in each window is plotted on the x-axis, the read (fragment if pe="both") counts
-(in counts/million) is plotted on the y-axis.
+This function generates a scatter plot of the number of Gs and Cs on the x-axis and the read count (cpm) on the y-axis in windows
+of size \code{winWidth} bp across the genome. A loess trendline is added to allow the user to see a potential GCbias trend in the data provided.
 }
 \description{
 Plot GC content versus read counts.
 }
 \details{
-This function generates a plot of the number of Gs and Cs against the read count (cpm) in windows across the chosen genome.
-A seperate plot is generated for each alignment file (bam file) that is supplied. Supports both single and paired-end experiments.
+This function generates a scatter plot of the number of Gs and Cs on the x-axis and the read count (cpm) on the y-axis in windows
+of size \code{winWidth} bp across the genome. A seperate plot is generated for each read alignment file in \code{bamFiles}.
+Supports both single and paired-end experiments. These plots allow the user to check if there is a potential GCbias in the (ChIPseq) data.
 }
 \examples{
-bamFiles <- c("/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r1_818F1_multi.bam","/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r2_818F3_multi.bam")
-GCbias(bamFiles=bamFiles)
+bamFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bam$")
+bamNames <- gsub(paste(system.file("extdata", package = "MiniChip"),"/",sep=""),"",bamFiles)
+bamNames <- gsub("_chr11.bam","",bamNames)
+GCbias(bamFiles=bamFiles,bamNames=bamNames)
 
 }

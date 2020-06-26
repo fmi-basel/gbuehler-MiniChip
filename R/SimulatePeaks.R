@@ -8,14 +8,15 @@
 #'  can be used as control regions for further analysis, for example, when
 #'  testing the overlap of your peaks with genomic annotations (genes, repeats,...).
 #'
-#' @param nSites The number of ranges.
-#' @param peak.widths A numeric vector of the length nSites containing the desired width of the ranges.
-#' @param chromosomeSizes A table with two columns: chromosome name, length of the chromosome.
+#' @param nSites Integer scalar giving the number of desired output ranges.
+#' @param peak.widths A numeric vector of the length given in \code{nSites} containing the desired width of the ranges.
+#' @param chromosomeSizes A table with two columns: chromosome name, length of the chromosome. 
+#' This defines the search space for choosing random regions.
 #'
-#' @return A GRanges object of randomly chosen genomic ranges of length nSites with widths peak.widths.
+#' @return A GRanges object of randomly chosen genomic ranges of length \code{nSites} with widths \code{peak.widths}.
 #'
 #' @examples
-#' SimulatePeaks(1000,rep(100,1000))
+#' SimulatePeaks(1000,rep(100,1000),chromosomeSizes=system.file("extdata", "chrNameLength_mm10_chr11.txt", package = "MiniChip"))
 #'
 #' @importFrom data.table data.table
 #' @importFrom data.table :=
@@ -47,5 +48,6 @@ SimulatePeaks <- function(nSites,peak.widths,chromosomeSizes){
                                            start.field=c("start"),
                                            end.field=c("end"),
                                            starts.in.df.are.0based=FALSE)
+  names(random.peaks) <- paste(seqnames(random.peaks),start(random.peaks),sep="_")
   return(random.peaks)
 }

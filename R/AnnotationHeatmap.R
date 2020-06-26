@@ -6,16 +6,18 @@
 #' for example, the summits of ChIP peaks. An annotation GRanges object must be provided.
 #' This can contain regions representing anything of interest, for example promoters, genes, repeats,
 #' or transcription factor motif occurences in the genome. The center of your GRanges object defines the coordinates
-#' of these positions of interest (eg peak summits, TSSs).  Features that lie on the minus strand will be reversed in the final output. If at least one region in the annotation GRanges object overlaps a window
+#' of these positions of interest (eg peak summits, TSSs).  Features that lie on the minus strand will be reversed in the final output. 
+#' If at least one region in the annotation GRanges object overlaps a window
 #' in the heatmap by 1/2 of the step size provided, this window will be called overlapping (= 1), otherwise it will be called non-overlapping (= 0).
 #'
 #' @param peaks A Granges object containing your positions of interest in a genome (eg ChIP peak summits). Must include seqnames (chromosomes), start, end, strand, and name.
 #' @param annotation A GRanges object containing the annotation ranges you want to plot around peak summits.For example, promoter regions.
-#' @param annoname A name to describe the annotationthat was provided (for example: "promoters"). Defaults to "annotation".
-#' @param span The distance from the peak center to the left and right that you want your heatmap to extand to. Default is 2025.
-#' @param step The window size in which reads are counted/plotted in the heatmap. Default is 50.
-#' @param ignoreStrand Should an overlap be counted only if on the same strand (ignore.strand=FALSE), or on any strand (ignore.strand=TRUE, default).
-#' @param minoverlap The minimum overlap of the annotation region with the window of the heatmap. Default is halp the step size.
+#' @param annoname A character scalar to describe the annotation that was provided (for example: "promoters"). Defaults to "annotation".
+#' @param span Integer scalar specifyig the distance from the peak center to the left and right that you want your heatmap to extend to. Default is 2025.
+#' @param step Integer scalar specifyig the window size in which annotation overlaps are counted. Default is 50.
+#' @param ignoreStrand Logical scalar indicating if hould an overlap should be counted only if on the same strand (ignore.strand=FALSE), or on any strand (ignore.strand=TRUE, default).
+#' @param minoverlap Integer scalar indicating the desired minimum overlap of the annotation region with the window of the heatmap 
+#' for a window to be counted as overlapping the annotation. Default is 1/2 * \code{step} (half the step size).
 #'
 #' @return
 #' A matrix that contains the overlap with the annotation in each window (column headers=middle of the window)

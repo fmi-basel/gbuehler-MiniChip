@@ -24,45 +24,52 @@ SummitHeatmap(
 )
 }
 \arguments{
-\item{peaks}{A Granges object containing your positions of interest. Must include seqnames (chromosomes), start, end, strand, and name.}
+\item{peaks}{A GRanges object containing your regions of interest. Must include seqnames (chromosomes), start, end, strand, and name.}
 
-\item{bamFiles}{The filenames (including full path) of the bam files containing the reads you want to count around the peak summits.}
+\item{bamFiles}{Character vector containing the filenames (including the full path) of read alignment files in bam format.}
 
-\item{bamNames}{A name to describe the bam files you are using (for example: "H3K9me3_reads"). Defaults to "myreads".}
+\item{bamNames}{Character vector containing the names to describe the \code{bamFiles} you are using (for example: "H3K9me3_reads").
+If no names are supplied, the full \code{bamFiles} names are used.}
 
-\item{span}{The distance from the peak center to the left and right that you want your heatmap to extand to. Default is 2025.}
+\item{span}{Integer scalar specifyig the distance from the peak center to the left and right that you want your heatmap to extend to. Default is 2025.}
 
-\item{step}{The window size in which reads are counted/plotted in the heatmap. Default is 50.}
+\item{step}{Integer scalar specifyig the window size in which reads are counted. Default is 50.}
 
-\item{minOverlap}{The minimum overlap of a read with the window for the read to be counted. Default = 1.}
+\item{minOverlap}{Integer scalar giving the minimum number of overlapping bases required for assigning a read to a heatmap window.
+For assignment of read pairs, number of overlapping bases from each read in the same pair will be summed.
+If a negative value is provided, then a gap of up to specified size will be allowed between read and the feature that the read is assigned to. 1 by default.}
 
-\item{useCPM}{Normalize the number of reads per window to the total number of reads in the sample (bam file). Default is TRUE.}
+\item{useCPM}{Logical scalar indicationg wether to normalize the number of reads per window to the total number of reads in the sample (bam file). Default is TRUE.}
 
-\item{PairedEnd}{Are reads in bam files generated with paired-end or single-end sequencing. Default is FALSE (=single-end).}
+\item{PairedEnd}{Logical scalar, indicating wether reads in bam files were generated with paired-end or single-end sequencing. Default is FALSE (=single-end).}
 
-\item{minMQS}{The minimum mapping quality. Default is 255, which eliminates multimapping reads when STAR was used to generate bam files.}
+\item{minMQS}{Integer scalar, specifying the minimum mapping quality that a read must have to be included. Default is 255, which eliminates multimapping
+reads in case the STAR aligner was used to generate the \code{bamFiles}.}
 
-\item{strand}{Strand specific sequencing? If the reads in the bam file are derived from both strands (usually the case for ChIP experiments),
-use 0 (default). 1 or 2 are the strans specific options (as in feature counts).}
+\item{strand}{Integer vector indicating if strand-specific read counting should be performed. Length of the vector should be either 1
+(meaning that the value is applied to all input files), or equal to the total number of input files provided. Each
+vector element should have one of the following three values: 0 (unstranded), 1 (stranded) and 2 (reversely stranded).
+Default value of this parameter is 0 (ie. unstranded read counting is performed for all input files).}
 
-\item{splitOnly}{Should only split reads (for example spliced reads) be counted? FALSE by default.}
+\item{splitOnly}{Logical scalar indicating whether only split alignments (their CIGAR strings contain letter 'N') should be included. FALSE by default.}
 
-\item{nonSplitOnly}{Should only non-split reads (for example not spliced reads) be counted? FALSE by default.}
+\item{nonSplitOnly}{Logical scalar indicating whether only non-split alignments (their CIGAR strings do not contain letter 'N') should be included. FALSE by default.}
 
-\item{readExtension3}{integer giving the number of bases extended downstream from 3' end of each read. 0 by default. Negative value is not allowed.}
+\item{readExtension3}{Integer scalar giving the number of bases extended downstream from 3' end of each read. 0 by default. Negative value is not allowed.}
 
-\item{readShiftSize}{integer specifying the number of bases the reads will be shifted downstream by. 100 by default. Negative value is not allowed.}
+\item{readShiftSize}{Integer scalar specifying the number of bases the reads will be shifted downstream by. 0 by default. Negative value is not allowed.}
 
-\item{requireBothEndsMapped}{logical indicating if both ends from the same fragment are required to be successfully aligned before the fragment can be assigned to a feature or meta-feature. This parameter is only appliable when isPairedEnd is TRUE.}
+\item{requireBothEndsMapped}{Logical scalar indicating if both ends from the same fragment are required to be successfully aligned before the fragment can be assigned to a feature or meta-feature.
+This parameter is only appliable when PairedEnd is TRUE.}
 
 \item{read2pos}{Specifying whether each read should be reduced to its 5' most base or 3' most base. It has three possible values: NULL, 5 (denoting 5' most base) and 3 (denoting 3' most base).
-Default value is 5, ie. the 5' end of the read will be counted. If a read is reduced to a single base, only that base will be considered for the read assignment.
+Default value is 5, ie. only the 5' end of the read will be counted. If a read is reduced to a single base, only that base will be considered for the read assignment.
 Read reduction is performed after read shifting and extension.}
 }
 \value{
-A list of matrices of the same length as the number of bam files supplied.
-Each matrix contains the number of reads (or cpm) in each window (column headers=middle of the window)
-for each position of interest, which was the start coordinate in the supplied GRanges object (rownames=peaknames).
+A list of matrices of the same length as the number of samples supplied in \code{bamFiles}.
+Each matrix contains the number of reads (or cpm) in each window (column headers indicate the middle of the window)
+around the center of each region provided in \code{peaks}.
 }
 \description{
 Generate heatmaps of read counts around positions of interest in a genome.
