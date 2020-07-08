@@ -13,8 +13,6 @@ DrawSummitHeatmaps(
   medianCpm,
   bottomCpm,
   splitHM,
-  split_pos = "yes",
-  split_neg = "no",
   TargetHeight = 0,
   orderSample = 1,
   orderWindows = NULL,
@@ -44,12 +42,8 @@ Any value above that will appear darker, any value below that will appear more w
 \item{bottomCpm}{Numeric vector of the same length as the number of heatmaps drawn, indicating the CPM values that correspond to the white color.
 Any value below that will appear white. If not specified, the minimum CPM value in the current count table is used.}
 
-\item{splitHM}{Character vector of row identifiers of the counts table(s) that have a certain attribute.
-The heatmap will be split into the rows that are in this vector and the remaining rows.}
-
-\item{split_pos}{Character scalar giving the name for the part of the split heatmap that overlaps the splitHM rows. Default is "yes".}
-
-\item{split_neg}{Character scalar giving the name for the part of the split heatmap that does not overlap the splitHM rows. Default is "no".}
+\item{splitHM}{Character vector of the same length as the number of rows in each table in \code{counts}, which indicates for each row in \code{counts} the membership within a certain group.
+The heatmap will then be split into these groups. For example, it could indicate if a peak overlaps a TSS or not. Default is that the heatmap will not be split.}
 
 \item{TargetHeight}{Integer scalar giving the number of rows the plotted heatmap should have after averaging. Default = 0, which means no summarization will be done. If TargetHeight > 0,
 the number of rows in the final heatmap will be reduced and therefore splitHM cannot be used.}

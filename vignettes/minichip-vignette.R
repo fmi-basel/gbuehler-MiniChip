@@ -6,7 +6,7 @@ knitr::opts_chunk$set(
 
 ## -----------------------------------------------------------------------------
 suppressPackageStartupMessages({
-   library(MiniChip)
+  library(MiniChip)
   library(ComplexHeatmap)
   library(GenomicFeatures)
   library(ggplot2)
@@ -119,7 +119,7 @@ meanCounts <- SummarizeHeatmaps(counts,sampleList)
 #select peaks that overlap a TSS (+/- 1kb)
 #txdb=loadDb("/tungstenfs/scratch/gbuehler/michi/Annotations/GENCODE/Mouse/release_M23/gencode.vM23.annotation.txdb.sqlite")
 txdb=TxDb.Mmusculus.UCSC.mm10.knownGene
-TSSs <- promoters(genes(txdb),upstream=1000,downstream=1000)
+TSSs <- promoters(txdb,upstream=1000,downstream=1000)
 summit_TSS_overlap <- overlapsAny(summits,TSSs)
 summit_TSS_overlap_names <- names(summits[summit_TSS_overlap == TRUE])
 
@@ -137,7 +137,9 @@ allCounts <- c(meanCounts,annos)
 
 cols <- c("darkblue","darkred","darkgreen")
 upper.cpm <- c(rep(2,2),rep(1,1))
+splitHM <- ifelse(summit_TSS_overlap==TRUE,"TSS","no TSS")
 
-heatmap_list <- DrawSummitHeatmaps(allCounts, names(allCounts), plotcol= cols, medianCpm = upper.cpm, orderSample = 1, use.log=TRUE, summarizing = "mean", orderWindows=2,MetaScale=c("all","all","individual"), TargetHeight=500)
+heatmap_list <- DrawSummitHeatmaps(allCounts, names(allCounts), plotcol= cols, medianCpm = upper.cpm, orderSample = 1, use.log=TRUE, summarizing = "mean", orderWindows=2,MetaScale=c("all","all","individual"), TargetHeight=500,
+                                   splitHM=splitHM)
 draw(heatmap_list, padding = unit(c(3, 8, 8, 2), "mm"),show_heatmap_legend=FALSE)
 

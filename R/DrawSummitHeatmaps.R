@@ -26,10 +26,8 @@
 #'  (with a pseudo count of 1 added, if necessary). Default is mean.
 #' @param show_axis Show the axis of the cumulative plot above the heatmap. Default is FALSE.
 #' @param use.log Logical scalar indicating wether the heatmap will be plotted in log2 scale. FALSE by default. A pseudo-count of 1 is added if Zeros are encountered in the matrix.
-#' @param splitHM Character vector of row identifiers of the counts table(s) that have a certain attribute.
-#' The heatmap will be split into the rows that are in this vector and the remaining rows.
-#' @param split_pos Character scalar giving the name for the part of the split heatmap that overlaps the splitHM rows. Default is "yes".
-#' @param split_neg Character scalar giving the name for the part of the split heatmap that does not overlap the splitHM rows. Default is "no".
+#' @param splitHM Character vector of the same length as the number of rows in each table in \code{counts}, which indicates for each row in \code{counts} the membership within a certain group.
+#' The heatmap will then be split into these groups. For example, it could indicate if a peak overlaps a TSS or not. Default is that the heatmap will not be split. 
 #' @param TargetHeight Integer scalar giving the number of rows the plotted heatmap should have after averaging. Default = 0, which means no summarization will be done. If TargetHeight > 0,
 #' the number of rows in the final heatmap will be reduced and therefore splitHM cannot be used.
 #' @param MetaScale A character vector of the same length as heatmaps, with values "all" or "individual". Defaults to "all",
@@ -64,7 +62,7 @@
 #'
 #' @export
 DrawSummitHeatmaps <- function(counts, bamNames=names(counts), plotcols= rep("darkblue",length(bamNames)),use.log = FALSE,
-                               topCpm, medianCpm, bottomCpm, splitHM, split_pos = "yes", split_neg = "no",TargetHeight = 0,
+                               topCpm, medianCpm, bottomCpm, splitHM, TargetHeight = 0,
                                orderSample = 1, orderWindows=NULL, clusterSample = 1, summarizing = "mean",show_axis=FALSE,
                                MetaScale=rep("all",length(bamNames))){
 
@@ -161,17 +159,46 @@ for (bam.sample in seq_along(bamNames)){
     #order the rows of the current counts table by the middle-value-sorted sample counts table
     counts.sorted <- counts3[row.names(counts.sorted.rev),]
 
-    if (TargetHeight > 0){
-    #summarize the rows to make the heatmap look smoother
-    counts.sorted <- redim_matrix(counts.sorted, target_height = TargetHeight, target_width = ncol(counts.sorted))
-    }
-
-    #split the heatmap into 2 parts (only works if the counts.sorted table was not summarized)
+    #split the heatmap into many parts 
     if(missing(splitHM)){
       row_split = NULL
     } else {
-      row_split = ifelse(row.names(counts.sorted) %in% splitHM,split_pos,split_neg)
+      #row_split = ifelse(row.names(counts.sorted) %in% splitHM,split_pos,split_neg)
+      splitHM.df <- data.frame(splitHM)
+      row.names(splitHM.df) <- row.names(counts3)
+      row_split1=splitHM.df[row.names(counts.sorted.rev),1]
+      split.groups <- unique(row_split1)
+      split.fracs <- numeric(length(split.groups))
+      for (g in seq_along(split.groups)){
+        split.fracs[g] <- length(row_split1[row_split1==split.groups[g]])/length(row_split1)
+      }
+     # frac_pos = length(row_split[row_split==split_pos])/length(row_split)
+     # frac_neg = length(row_split[row_split==split_neg])/length(row_split)
     }
+    
+    
+    if (TargetHeight > 0 & missing(splitHM)){
+    #summarize the rows to make the heatmap look smoother
+    counts.sorted <- redim_matrix(counts.sorted, target_height = TargetHeight, target_width = ncol(counts.sorted))
+    }
+    if (TargetHeight > 0 & !missing(splitHM)){
+      #summarize the rows to make the heatmap look smoother, taking splitting into consideration
+     # counts.sorted.pos <- redim_matrix(counts.sorted[row_split==split_pos,], target_height = TargetHeight*frac_pos, target_width = ncol(counts.sorted))
+     # counts.sorted.neg <- redim_matrix(counts.sorted[row_split==split_neg,], target_height = TargetHeight*frac_neg, target_width = ncol(counts.sorted))
+     # row_split = c(rep(split_pos,nrow(counts.sorted.pos)),rep(split_neg,nrow(counts.sorted.neg)))
+     # counts.sorted <- rbind(counts.sorted.pos,counts.sorted.neg)
+      counts.sorted.split <- list()
+      row_split <- character(0)
+      for (g in seq_along(split.groups)){
+        counts.sorted.split[[g]] <- redim_matrix(counts.sorted[row_split1==split.groups[g],], target_height = TargetHeight*split.fracs[g], target_width = ncol(counts.sorted))
+        row_split <- c(row_split,rep(split.groups[g],nrow(counts.sorted.split[[g]])))
+       }
+    counts.sorted <- do.call("rbind",counts.sorted.split)
+    } 
+    if (TargetHeight == 0 & !missing(splitHM)){
+    row_split <- row_split1
+  }
+    
 
 #generate the heatmap list entry for the current sample (sorted by the middle values of the specified sample (orderSample option)) and append to complete heatmap list
   ht_list <- ht_list + Heatmap(counts.sorted,name = bamNames[bam.sample], cluster_rows = FALSE, cluster_columns = FALSE,
@@ -184,13 +211,14 @@ for (bam.sample in seq_along(bamNames)){
                                #use_raster = TRUE, raster_device = "png",raster_quality=1,
                                row_split = row_split
    )
+  
   } else {
 
-    #split the heatmap into 2 parts
+    #split the heatmap into many parts 
     if(missing(splitHM)){
       row_split = NULL
     } else {
-      row_split = ifelse(row.names(counts3) %in% splitHM,split_pos,split_neg)
+      row_split=splitHM
     }
 
     #generate the heatmap list entry for the current sample (sorted by the clustering of the specified sample (clusterSample option)) and append to complete heatmap list
