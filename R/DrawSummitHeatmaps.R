@@ -208,7 +208,7 @@ for (bam.sample in seq_along(bamNames)){
                                bottom_annotation = bin_anno,
                                top_annotation = cumulative_anno,
                                use_raster = TRUE, raster_device = "CairoPNG",raster_quality=1,
-                               #use_raster = TRUE, raster_device = "png",raster_quality=1,
+                              # use_raster = TRUE, raster_device = "png",raster_quality=1,
                                row_split = row_split
    )
   
@@ -229,7 +229,7 @@ for (bam.sample in seq_along(bamNames)){
                                  bottom_annotation = bin_anno,
                                  top_annotation = cumulative_anno,
                                  use_raster = TRUE, raster_device = "CairoPNG",raster_quality=1,
-                                # use_raster = UseRaster, raster_device = "png",raster_quality=1,
+                                 #use_raster = UseRaster, raster_device = "png",raster_quality=1,
                                  row_split = row_split, show_row_dend = FALSE,show_column_dend = FALSE,
     )
   }}

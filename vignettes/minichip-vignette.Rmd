@@ -26,7 +26,9 @@ suppressPackageStartupMessages({
   library(ggplot2)
   library(reshape2)
   library(BSgenome.Mmusculus.UCSC.mm10)
-  library(TxDb.Mmusculus.UCSC.mm10.knownGene)
+  #library(TxDb.Mmusculus.UCSC.mm10.knownGene)
+  library(TxDb.Mmusculus.UCSC.mm10.ensGene)
+  library(EnsDb.Mmusculus.v79)
 })
 ```
 
@@ -134,7 +136,7 @@ You can select any bamFile that you are interested in, and the number of bamFile
 
 To check if the enrichments are biased towards GC rich regions, we can use the GCbias function to plot GC content versus the read counts for each alignment file. 
 
-```{r,  fig.height=5, fig.width=10}
+```{r,  fig.height=5, fig.width=10, message = FALSE}
 GCbias(bamFiles[1:2],bamNames[1:2],pe="none", restrict="chr11",GCprob=TRUE, genome=BSgenome.Mmusculus.UCSC.mm10)
 ```
 
@@ -146,7 +148,7 @@ Now we define the span (distance from peak summit to left and right, in this cas
 
 Then we use the SummitHeatmap function for the MiniChip package to calculate the counts per million (cpm) reads of each bam file in each window across the summit of each peak in the peaks object.
 
-```{r}
+```{r, message = FALSE}
 span <- 3025
 step <- 50
 summits <- peaks
@@ -162,7 +164,7 @@ This will return the counts object, a list of length 8 (since we are using 8 bam
 To plot heatmaps for each sample (bam file) sorted by the first bam file, you can use the DrawSummitHeatmaps function. By providing shorter names for the samples you can ensure nice heatmap titles. Here we select only the ChIP samples (and not the Input samples).
 
 
-```{r heatmap, fig.height=10, fig.width=8}
+```{r heatmap, fig.height=10, fig.width=8, message = FALSE}
 ht_list <- DrawSummitHeatmaps(counts[c(1,2,3)], bamNames[c(1,2,3)],orderSample=1, use.log=TRUE,
                               bottomCpm=c(0,0,0), medianCpm = c(2,2,2), topCpm = c(4,4,4), orderWindows=2, TargetHeight=500)
 draw(ht_list, padding = unit(c(3, 8, 8, 2), "mm"))
@@ -183,10 +185,10 @@ meanCounts <- SummarizeHeatmaps(counts,sampleList)
 
 Then we can split the epaks into those that overlap a promoter and those that do not, and generate the cumululative plots using the CumulativePlots function.
 
-```{r, fig.height=5, fig.width=10}
+```{r, fig.height=5, fig.width=10, message = FALSE}
 #select peaks that overlap a TSS (+/- 1kb)
 #txdb=loadDb("/tungstenfs/scratch/gbuehler/michi/Annotations/GENCODE/Mouse/release_M23/gencode.vM23.annotation.txdb.sqlite")
-txdb=TxDb.Mmusculus.UCSC.mm10.knownGene
+txdb=TxDb.Mmusculus.UCSC.mm10.ensGene
 TSSs <- promoters(txdb,upstream=1000,downstream=1000)
 summit_TSS_overlap <- overlapsAny(summits,TSSs)
 summit_TSS_overlap_names <- names(summits[summit_TSS_overlap == TRUE])
@@ -198,7 +200,9 @@ CumulativePlots(meanCounts,bamNames = names(meanCounts),
 
 This suggests that some of the Adnp peaks overlap promoters, and that they have as much enrichment in Adnp as the ones which do not overlap promoters. To see which ones overlap promoters, we can add the promoter annotation to the heatmaps, using the AnnotationHeatmap function. 
 
-```{r, fig.height=10, fig.width=8}
+## Draw heatmaps of Adnp ChIP-seq and Input read counts and promoter annotation around the peak summits (+/- 3025bp).
+
+```{r, fig.height=10, fig.width=8, message = FALSE}
 promoters <- promoters(txdb,upstream=150,downstream=150)
 annoname <- "promoters"
 promoters.overlap <- AnnotationHeatmap(summits,annotation=promoters,annoname,span,step)
@@ -213,4 +217,18 @@ splitHM <- ifelse(summit_TSS_overlap==TRUE,"TSS","no TSS")
 heatmap_list <- DrawSummitHeatmaps(allCounts, names(allCounts), plotcol= cols, medianCpm = upper.cpm, orderSample = 1, use.log=TRUE, summarizing = "mean", orderWindows=2,MetaScale=c("all","all","individual"), TargetHeight=500,
                                    splitHM=splitHM)
 draw(heatmap_list, padding = unit(c(3, 8, 8, 2), "mm"),show_heatmap_legend=FALSE)
+```
+
+## Draw genome browser tracks of Adnp ChIP read counts across the Adnp peak with the highest score.
+
+```{r, fig.height=4, fig.width=8, message = FALSE}
+#get bigwig file names
+all.bwFiles <- list.files("/tungstenfs/scratch/gbuehler/deepSeqRepos/bigwig/", full.names=TRUE,pattern="*bw$")
+all.bwFiles <- grep("uni",all.bwFiles,value=TRUE)
+bwFiles <- grep("872F",all.bwFiles,value=TRUE)[1:2]
+#bwFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bw$")
+
+#plot
+plotTracks(bwFilesPlus=bwFiles,bwNames=c(rep("Adnp",2)),txdb=txdb,EnsDb=EnsDb.Mmusculus.v79,
+           plotregion=peaks[peaks$score==max(peaks$score)],plotExtension=5000,plotranges=rep(0.8,2))
 ```

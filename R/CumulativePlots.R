@@ -27,7 +27,7 @@
 #' @importFrom ggplot2 scale_fill_manual
 #' @importFrom ggplot2 scale_color_manual
 #' @importFrom ggplot2 theme_classic
-#' @importFrom ggplot2 aes
+#' @importFrom ggplot2 aes vars
 #' @importFrom tidyr pivot_longer
 #' @importFrom tidyr %>%
 #' @importFrom tidyselect contains

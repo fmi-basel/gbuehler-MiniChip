@@ -15,7 +15,7 @@ RoxygenNote: 7.1.0
 Depends:
     GenomicRanges
 Imports:
-   data.table,
+    data.table,
     Rsubread,
     ComplexHeatmap,
     circlize,
@@ -25,7 +25,8 @@ Imports:
     ggplot2,
     BSgenome,
     BSgenome.Mmusculus.UCSC.mm10,
-    TxDb.Mmusculus.UCSC.mm10.knownGene,
+    TxDb.Mmusculus.UCSC.mm10.ensGene,
+    EnsDb.Mmusculus.v79,
     Biostrings,
     plyr,
     reshape2,
@@ -35,7 +36,14 @@ Imports:
     SummarizedExperiment,
     csaw,
     viridis,
-    parallel
+    parallel,
+    Sushi,
+    rtracklayer,
+    stringr,
+    dplyr,
+    AnnotationDbi,
+    KernSmooth,
+    Cairo
 Suggests: 
     testthat,
     knitr,
