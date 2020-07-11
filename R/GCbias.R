@@ -11,11 +11,11 @@
 #' @param minMQS Integer scalar, specifying the minimum mapping quality that a read must have to be included. Default is 255, which eliminates multimapping reads in case the STAR aligner was used to generate the \code{bamFiles}.
 #' @param maxFrag Integer scalar, specifying the maximum fragment length corresponding to a read pair. Defaults to 500 base pairs.
 #' @param pe Character scalar indicating whether paired-end data is present; set to "none" (the default), "both", "first" or "second".
-#' @param restrict Character vector containing the names of allowable chromosomes from which reads will be extracted. Default is "chr1".
+#' @param restrict Character vector containing the names of allowable chromosomes from which reads will be extracted. Default is "chr11".
 #' @param winWidth Integer scalar specifying the width of the window, in which reads are counted and GC content calculated. Default is 5000 base pairs.
 #' @param col Color scheme for the smooth scatter plots. If not provided, viridis::inferno is used. 
 #' @param genome BSGenome object. Required parameter. For example,use BSgenome.Mmusculus.UCSC.mm10 for mouse.
-#' @param GCprob Logical scalar, indicating wether the GC content should be displayed as absolute counts (GCprob=FALSE) or as fraction of GCs (GCprob=TRUE,default).
+#' @param GCprob Logical scalar, indicating whether the GC content should be displayed as absolute counts (GCprob=FALSE) or as fraction of GCs (GCprob=TRUE,default).
 #' @param span Numeric scalar specifying the span that is used for loess trendline. Default= 0.1
 #'
 #' @return This function generates a scatter plot of the number of Gs and Cs on the x-axis and the read count (cpm) on the y-axis in windows
@@ -23,10 +23,11 @@
 #' 
 #'
 #' @examples
-#' bamFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bam$")
+#' library(BSgenome.Mmusculus.UCSC.mm10)
+#' bamFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bam$")[1:2]
 #' bamNames <- gsub(paste(system.file("extdata", package = "MiniChip"),"/",sep=""),"",bamFiles)
 #' bamNames <- gsub("_chr11.bam","",bamNames)
-#' GCbias(bamFiles=bamFiles,bamNames=bamNames)
+#' GCbias(bamFiles=bamFiles,bamNames=bamNames,genome=BSgenome.Mmusculus.UCSC.mm10)
 #'
 #' @importFrom csaw readParam calculateCPM windowCounts calculateCPM
 #' @importFrom SummarizedExperiment assay rowRanges
@@ -37,7 +38,7 @@
 #' @importFrom stats loess predict
 #'
 #' @export
-GCbias <- function(bamFiles, bamNames=bamFiles, minMQS=255,maxFrag=500,pe="none",restrict="chr1",
+GCbias <- function(bamFiles, bamNames=bamFiles, minMQS=255,maxFrag=500,pe="none",restrict="chr11",
                    winWidth=5000, col=inferno, genome, GCprob=TRUE,span=0.1){
   #define parameters for read extarction
   paramPE <- csaw::readParam(minq=minMQS,max.frag=maxFrag, pe=pe,restrict=restrict)

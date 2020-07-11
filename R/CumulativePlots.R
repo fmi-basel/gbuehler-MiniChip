@@ -27,12 +27,13 @@
 #' @importFrom ggplot2 scale_fill_manual
 #' @importFrom ggplot2 scale_color_manual
 #' @importFrom ggplot2 theme_classic
-#' @importFrom ggplot2 aes vars
+#' @importFrom ggplot2 aes vars ylab
 #' @importFrom tidyr pivot_longer
 #' @importFrom tidyr %>%
 #' @importFrom tidyselect contains
 #' @importFrom stats sd
 #' @importFrom stats qt
+#' @importFrom rlang .data
 #'
 #' @examples
 #' counts <- list(matrix(rnorm(21000,2,1),ncol=81,nrow=100,dimnames=list(1:100,-40:40)),
@@ -83,8 +84,8 @@ CumulativePlots <- function(counts,bamNames,span=2025,step=50,summarizing = "mea
 
     if(plot==TRUE){
       mean.plots.long <- avg.counts %>% pivot_longer(contains("overlap"),names_to = c(".value","overlap"),names_sep="_")
-      p <- ggplot(mean.plots.long,aes(x=position,y=mean)) + geom_smooth(aes(ymin=ci.lower,ymax=ci.upper,fill=overlap,color=overlap),stat="identity")
-      p <- p + facet_wrap(vars(name),scales="free") + ylab("log2(cpm)") + theme_classic()
+      p <- ggplot(mean.plots.long,aes(x=.data$position,y=.data$mean)) + geom_smooth(aes(ymin=.data$ci.lower,ymax=.data$ci.upper,fill=.data$overlap,color=.data$overlap),stat="identity")
+      p <- p + facet_wrap(vars(.data$name),scales="free") + ylab("log2(cpm)") + theme_classic()
       p <- p + scale_fill_manual(values=plotcols,labels = overlapLabels)
       p <- p + scale_color_manual(values=plotcols,labels = overlapLabels)
       return(p)
@@ -111,7 +112,7 @@ CumulativePlots <- function(counts,bamNames,span=2025,step=50,summarizing = "mea
 
   if(plot==TRUE){
     avg.counts.long <- melt(avg.counts,id.vars=c("name","position"))
-    p <- ggplot(avg.counts.long,aes(x=position, y=value)) + geom_line(aes(color=variable)) + facet_wrap(vars(name),scales="free")
+    p <- ggplot(avg.counts.long,aes(x=.data$position, y=.data$value)) + geom_line(aes(color=.data$variable)) + facet_wrap(vars(.data$name),scales="free")
     p <- p + theme_classic() + ylab("log2(cpm)") + scale_color_manual(values=plotcols,labels = overlapLabels)
     return(p)
   } else {

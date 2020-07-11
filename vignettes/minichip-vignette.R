@@ -147,10 +147,10 @@ draw(heatmap_list, padding = unit(c(3, 8, 8, 2), "mm"),show_heatmap_legend=FALSE
 
 ## ---- fig.height=4, fig.width=8, message = FALSE------------------------------
 #get bigwig file names
-all.bwFiles <- list.files("/tungstenfs/scratch/gbuehler/deepSeqRepos/bigwig/", full.names=TRUE,pattern="*bw$")
-all.bwFiles <- grep("uni",all.bwFiles,value=TRUE)
-bwFiles <- grep("872F",all.bwFiles,value=TRUE)[1:2]
-#bwFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bw$")
+#all.bwFiles <- list.files("/tungstenfs/scratch/gbuehler/deepSeqRepos/bigwig/", full.names=TRUE,pattern="*bw$")
+#all.bwFiles <- grep("uni",all.bwFiles,value=TRUE)
+#bwFiles <- grep("872F",all.bwFiles,value=TRUE)[1:2]
+bwFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bw$")
 
 #plot
 plotTracks(bwFilesPlus=bwFiles,bwNames=c(rep("Adnp",2)),txdb=txdb,EnsDb=EnsDb.Mmusculus.v79,

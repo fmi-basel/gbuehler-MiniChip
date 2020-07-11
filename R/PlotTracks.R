@@ -3,7 +3,7 @@
 #' @description Plots genome browser like tracks.
 #'
 #' @details Plots genome browser like tracks for supplied data (stranded or unstranded, eg RNAseq, CHIPseq) in bigwig format, 
-#' for a region surrounding a specified gene, including all transcripts for that gene.
+#' for a region surrounding a specified gene, or a region specified by a GRanges object. Including a track for all transcripts in that region.
 #'
 #' @param bwFilesPlus Character vector containing the filenames (including the full path) of read alignment files in bigwig format.
 #' Either the only bigwig file per sample if unstranded (eg for ChIPseq) or the bigwig file containing the reads mapped on the plus strand.
@@ -29,6 +29,13 @@
 #' @importFrom AnnotationDbi select
 #' @importFrom dplyr left_join
 #'
+#' @examples
+#' library(TxDb.Mmusculus.UCSC.mm10.ensGene)
+#' library(EnsDb.Mmusculus.v79)
+#' bwFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bw$")
+#' plotTracks(bwFilesPlus=bwFiles,bwNames=c(rep("Adnp",2)), txdb=TxDb.Mmusculus.UCSC.mm10.ensGene,EnsDb=EnsDb.Mmusculus.v79,
+#' gene="Adnp", plotExtension=500,plotranges=rep(0.8,2))
+
 #' @export
 plotTracks <- function(bwFilesPlus,bwFilesMinus,bwNames,txdb,EnsDb,gene,plotregion,
                        plotExtension=1000,plotranges=rep(1,length(bwNames))){

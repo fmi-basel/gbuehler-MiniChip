@@ -2,29 +2,37 @@
 % Please edit documentation in R/FindMotifs.R
 \name{FindMotifs}
 \alias{FindMotifs}
-\title{FindMotis}
+\title{FindMotifs}
 \usage{
 FindMotifs(
   peaks,
   peaknames = "mypeaks",
+  genome,
   topn = 100,
   width = 100,
-  runMEME = TRUE,
-  runHOMER = TRUE
+  runMEME = FALSE,
+  runHOMER = FALSE,
+  genomepath = "/work/gbioinfo/DB/genomes/mm10"
 )
 }
 \arguments{
 \item{peaks}{A Granges object containing your positions of interest. Must include seqnames (chromosomes), start, end, unique peak (row) name.}
 
-\item{peaknames}{A character string that describes your peaks. Default is "mypeaks".}
+\item{peaknames}{A character scalar that describes your peaks. Default is "mypeaks".}
 
-\item{topn}{The number of top peaks (counted from the top row of the GRanges object) to use for motif finding. Default is 100.}
+\item{genome}{BSGenome object. Required parameter. For example,use BSgenome.Mmusculus.UCSC.mm10 for mouse.}
 
-\item{width}{The width of the peak (around the center of each range) to use for motif finding. Default is 100.}
+\item{topn}{Numeric scalar or vector indicating the number of top peaks (counted from the top row of the GRanges object) to use for motif finding.
+Default is 100. If a vector is supplied (eg. c(100,1000)), then the function generates a MEME and a HOMER input file (and runs MEME/HOMER) for each element (eg. the 100 top peaks, then the 1000 top peaks).}
 
-\item{runMEME}{Should MEME motif finding be run? Default = TRUE.}
+\item{width}{Numeric scalar indicating the width of the peak (around the center of each range) to use for motif finding. Default is 100.}
 
-\item{runHOMER}{Should HOMER motif finding be run? Default = TRUE.}
+\item{runMEME}{Logical scalar, indicating whether the MEME motif finding should be run. Default = FALSE.}
+
+\item{runHOMER}{Logical scalar, indicating whether the HOMER motif finding should be run. Default = FALSE.}
+
+\item{genomepath}{Character string giving the full path to the genome that HOMER should use for extracting peak sequences.
+Only required if \code{runHOMER} = TRUE. Default = "/work/gbioinfo/DB/genomes/mm10".}
 }
 \value{
 Saves the outputs of MEME and HOMER.
@@ -33,16 +41,18 @@ Saves the outputs of MEME and HOMER.
 Finds enriched motifs in supplied regions (peaks) using MEME and HOMER.
 }
 \details{
-Finds enriched motifs in supplied regions (peaks) in the mouse mm10 genome using MEME and HOMER. It will write a fasta file with the peak sequences
-(for MEME Input) and a bed file with the peak coordinates (for HOMER Input). If runMEME/runHOMER is set to TRUE (the default)
-it will also run the MEME/HOMER analysis (requires MEME/HOMER to be installed).
+Finds enriched motifs in supplied regions (peaks) in the supplied genome using MEME and HOMER. It will write a fasta file with the peak sequences
+(for MEME Input) and a bed file with the peak coordinates (for HOMER Input). If \code{runMEME} and/or \code{runHOMER} is set to TRUE
+it will also run the MEME and/or HOMER analysis (requires MEME and/or HOMER to be installed).
 }
 \examples{
+library(BSgenome.Mmusculus.UCSC.mm10)
 peaks <- GenomicRanges::GRanges(
 seqnames = Rle(c("chr1", "chr2", "chr1", "chr3"), c(1, 3, 2, 4)),
 ranges = IRanges(50101:50110, end = 51111:51120),
 strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),
 summit = 1:10, name = head(letters, 10))
-FindMotifs(peaks)
+FindMotifs(peaks,genome=BSgenome.Mmusculus.UCSC.mm10,topn=2)
+unlink("mypeaks.*")
 
 }

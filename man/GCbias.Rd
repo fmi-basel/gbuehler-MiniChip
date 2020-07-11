@@ -10,7 +10,7 @@ GCbias(
   minMQS = 255,
   maxFrag = 500,
   pe = "none",
-  restrict = "chr1",
+  restrict = "chr11",
   winWidth = 5000,
   col = inferno,
   genome,
@@ -29,7 +29,7 @@ GCbias(
 
 \item{pe}{Character scalar indicating whether paired-end data is present; set to "none" (the default), "both", "first" or "second".}
 
-\item{restrict}{Character vector containing the names of allowable chromosomes from which reads will be extracted. Default is "chr1".}
+\item{restrict}{Character vector containing the names of allowable chromosomes from which reads will be extracted. Default is "chr11".}
 
 \item{winWidth}{Integer scalar specifying the width of the window, in which reads are counted and GC content calculated. Default is 5000 base pairs.}
 
@@ -37,7 +37,7 @@ GCbias(
 
 \item{genome}{BSGenome object. Required parameter. For example,use BSgenome.Mmusculus.UCSC.mm10 for mouse.}
 
-\item{GCprob}{Logical scalar, indicating wether the GC content should be displayed as absolute counts (GCprob=FALSE) or as fraction of GCs (GCprob=TRUE,default).}
+\item{GCprob}{Logical scalar, indicating whether the GC content should be displayed as absolute counts (GCprob=FALSE) or as fraction of GCs (GCprob=TRUE,default).}
 
 \item{span}{Numeric scalar specifying the span that is used for loess trendline. Default= 0.1}
 }
@@ -54,9 +54,10 @@ of size \code{winWidth} bp across the genome. A seperate plot is generated for e
 Supports both single and paired-end experiments. These plots allow the user to check if there is a potential GCbias in the (ChIPseq) data.
 }
 \examples{
-bamFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bam$")
+library(BSgenome.Mmusculus.UCSC.mm10)
+bamFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bam$")[1:2]
 bamNames <- gsub(paste(system.file("extdata", package = "MiniChip"),"/",sep=""),"",bamFiles)
 bamNames <- gsub("_chr11.bam","",bamNames)
-GCbias(bamFiles=bamFiles,bamNames=bamNames)
+GCbias(bamFiles=bamFiles,bamNames=bamNames,genome=BSgenome.Mmusculus.UCSC.mm10)
 
 }

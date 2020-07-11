@@ -50,7 +50,7 @@
 #' @importFrom grid grid.lines
 #' @importFrom grid upViewport
 #' @importFrom circlize colorRamp2
-#' @importFrom stats dist
+#' @importFrom stats dist median
 #' @importFrom stats hclust
 #'
 #' @examples
