@@ -11,7 +11,8 @@
 #' containing the reads mapped on the minus strand. If missing, only the \code{bwFilesPlus} files will be used. 
 #' @param bwNames Character vector containing the names to describe the samples (for example: "H3K9me3"). 
 #' @param txdb TxDb object containing all transcripts/genes using Ensembl Gene IDs.
-#' @param EnsDb EnsDb object containing an Ensembl annotation database linking GeneIDs to gene symbols.  
+#' @param EnsDb EnsDb object containing an Ensembl annotation database linking GeneIDs to gene symbols. 
+#' @param bedFiles Optional character vector containing the filenames (including the full path) of any bed files (eg peaks) to be plotted.  
 #' @param gene Character scalar specifying the gene symbol for the gene around which the tracks should be plotted.
 #' If missing, a \code{plotregion} needs to be supplied instead.
 #' @param plotregion A GRanges object containing the region of the genome for plotting the tracks (in case \code{gene} is not supplied).
@@ -37,7 +38,7 @@
 #' gene="Adnp", plotExtension=500,plotranges=rep(0.8,2))
 
 #' @export
-plotTracks <- function(bwFilesPlus,bwFilesMinus,bwNames,txdb,EnsDb,gene,plotregion,
+plotTracks <- function(bwFilesPlus,bwFilesMinus,bwNames,txdb,EnsDb,bedFiles,gene,plotregion,
                        plotExtension=1000,plotranges=rep(1,length(bwNames))){
   
   ######select the gene to plot and generate transcripts bed file#####
@@ -98,7 +99,11 @@ plotTracks <- function(bwFilesPlus,bwFilesMinus,bwNames,txdb,EnsDb,gene,plotregi
                           type=rep("exon",length(exons2)))
   
   #set the plotting area
-  par(mfrow=c(length(bwNames)+1,1),mar=c(3,5,2,1))
+  if(!missing(bedFiles)){
+  par(mfrow=c(length(bwNames)+1+length(bedFiles),1),mar=c(3,5,2,1))
+  } else {
+    par(mfrow=c(length(bwNames)+1,1),mar=c(3,5,2,1))
+  }
   
   #seq along the bigwig samples provided
   for (i in seq_along(bwNames)){
@@ -114,18 +119,31 @@ plotTracks <- function(bwFilesPlus,bwFilesMinus,bwNames,txdb,EnsDb,gene,plotregi
    #plot the sample
    plotBedgraph(bg.plus, chrom, chromstart, chromend, range=range,transparency=0.5, color=SushiColors(2)(4)[1])
    if(!missing(bwFilesMinus)){
-   plotBedgraph(bg.minus, chrom, chromstart, chromend, range=range,transparency=0.5, color=SushiColors(2)(4)[4], overlay=TRUE, rescaleoverlay=FALSE)
+   plotBedgraph(bg.minus, chrom, chromstart, chromend, range=range,transparency=0.5, color=SushiColors(2)(4)[2], overlay=TRUE, rescaleoverlay=FALSE)
    }
    mtext(bwNames[i],side=2,line=3,cex=1,font=1)
    axis(side=2,las=2,tcl=.2,line=0.5)
   }
   
   #plot the transcripts
-  pg = plotGenes(exons.bed,chrom,chromstart,chromend ,
+  pg = plotGenes(exons.bed,chrom,chromstart,chromend,
                  types = exons.bed$type,
                  colorby=log10(exons.bed$score+0.001),
                  colorbycol= SushiColors(5),colorbyrange=c(0,1.0),
                  labeltext=TRUE,maxrows=50,height=0.4,plotgenetype="box")
+  
+  #plot additional bed files
+  if(!missing(bedFiles)){
+  for (i in seq_along(bedFiles)){
+  bed_file <- read.table(file=bedFiles[i],sep="\t",header=TRUE)
+
+  pg = plotGenes(bed_file,chrom,chromstart,chromend ,
+                 types = bed_file$type,
+                 colorby=bed_file$score,
+                 colorbycol= SushiColors(5),colorbyrange=c(0,20),
+                 labeltext=TRUE,maxrows=50,height=0.4,plotgenetype="box")
+  }
+  }
   
   #plot the scale bar
   labelgenome( chrom, chromstart,chromend,n=5,scale="Kb")

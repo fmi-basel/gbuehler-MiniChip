@@ -10,6 +10,7 @@ plotTracks(
   bwNames,
   txdb,
   EnsDb,
+  bedFiles,
   gene,
   plotregion,
   plotExtension = 1000,
@@ -28,6 +29,8 @@ containing the reads mapped on the minus strand. If missing, only the \code{bwFi
 \item{txdb}{TxDb object containing all transcripts/genes using Ensembl Gene IDs.}
 
 \item{EnsDb}{EnsDb object containing an Ensembl annotation database linking GeneIDs to gene symbols.}
+
+\item{bedFiles}{Optional character vector containing the filenames (including the full path) of any bed files (eg peaks) to be plotted.}
 
 \item{gene}{Character scalar specifying the gene symbol for the gene around which the tracks should be plotted.
 If missing, a \code{plotregion} needs to be supplied instead.}
