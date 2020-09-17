@@ -25,7 +25,13 @@
 #' @importFrom GenomicRanges makeGRangesFromDataFrame
 #'
 #' @export
-SimulatePeaks <- function(nSites,peak.widths,chromosomeSizes){
+SimulatePeaks <- function(nSites,peak.widths,chromosomeSizes){ 
+ 
+   if (!requireNamespace("data.table", quietly = TRUE)) {
+  stop("Package \"data.table\" needed for this function to work. Please install it.",
+       call. = FALSE)
+   }
+  
   chromSizes <- read.table(chromosomeSizes)
   # define chromosomes and regions on them where peaks can fall onto without obtaining negative starting positions in the end
   chromosomes <- data.table(chromosome=chromSizes$V1[chromSizes$V2 > max(peak.widths)], start=max(peak.widths), end=chromSizes$V2[chromSizes$V2 > max(peak.widths)])

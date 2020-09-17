@@ -40,6 +40,11 @@
 #' @export
 plotTracks <- function(bwFilesPlus,bwFilesMinus,bwNames,txdb,EnsDb,bedFiles,gene,plotregion,
                        plotExtension=1000,plotranges=rep(1,length(bwNames))){
+
+    if (!requireNamespace("Sushi", quietly = TRUE)) {
+    stop("Package \"Sushi\" needed for this function to work. Please install it.",
+         call. = FALSE)
+    }
   
   ######select the gene to plot and generate transcripts bed file#####
   #obtain a GRanges object of genes from the txdb
@@ -126,17 +131,21 @@ plotTracks <- function(bwFilesPlus,bwFilesMinus,bwNames,txdb,EnsDb,bedFiles,gene
   }
   
   #plot the transcripts
+  if (nrow(exons.bed) > 0){
   pg = plotGenes(exons.bed,chrom,chromstart,chromend,
                  types = exons.bed$type,
                  colorby=log10(exons.bed$score+0.001),
                  colorbycol= SushiColors(5),colorbyrange=c(0,1.0),
                  labeltext=TRUE,maxrows=50,height=0.4,plotgenetype="box")
+  } else {
+    message("No transcripts found in plot region!")
+  }
   
   #plot additional bed files
   if(!missing(bedFiles)){
   for (i in seq_along(bedFiles)){
   bed_file <- read.table(file=bedFiles[i],sep="\t",header=TRUE)
-
+  bed_file <- bed_file[bed_file$chrom==chrom,]
   pg = plotGenes(bed_file,chrom,chromstart,chromend ,
                  types = bed_file$type,
                  colorby=bed_file$score,

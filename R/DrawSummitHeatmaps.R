@@ -190,7 +190,7 @@ for (bam.sample in seq_along(bamNames)){
       counts.sorted.split <- list()
       row_split <- character(0)
       for (g in seq_along(split.groups)){
-        counts.sorted.split[[g]] <- redim_matrix(counts.sorted[row_split1==split.groups[g],], target_height = TargetHeight*split.fracs[g], target_width = ncol(counts.sorted))
+        counts.sorted.split[[g]] <- redim_matrix(counts.sorted[row_split1==split.groups[g],], target_height = max(1,TargetHeight*split.fracs[g]), target_width = ncol(counts.sorted))
         row_split <- c(row_split,rep(split.groups[g],nrow(counts.sorted.split[[g]])))
        }
     counts.sorted <- do.call("rbind",counts.sorted.split)

@@ -91,6 +91,9 @@ AnnotationHeatmap <- function(peaks,annotation,annoname = "annotation", span=202
   colnames(overlap) <- binmids
   rownames(overlap) <- matrix(names(peaks2),nrow=length(peaks),ncol=length(windows), byrow=TRUE)[,1]
 
+  #sort the rows by the original peak GRanges object order
+  overlap <- overlap[names(peaks),]
+  
   #turn around the - strand genes
  # for (i in (1:nrow(overlap))) {
   #  if (as.character(strand(peaks2[i])) == "-") {

@@ -143,7 +143,9 @@ SummitHeatmap <- function(peaks, bamFiles, bamNames="myreads", span=2025, step=5
     } else {
       all.counts[[bam.sample]] <- counts
     }
-
+    #sort the rows by the original peak GRanges object order
+    all.counts[[bam.sample]] <- all.counts[[bam.sample]][names(peaks),]
+    
   }
 
   #return the results
