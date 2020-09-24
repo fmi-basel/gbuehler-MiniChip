@@ -8,7 +8,7 @@ CountPeakReads(
   peaks,
   bamFiles,
   bamNames = bamFiles,
-  chips = bamFiles,
+  chips = bamNames,
   inputs,
   width = 500,
   minOverlap = 1,
@@ -33,7 +33,7 @@ CountPeakReads(
 If no names are supplied, the full \code{bamFiles} names are used.}
 
 \item{chips}{Character vector containing the names of the ChIP samples, corresponding exactly to the ChIP sample names in \code{bamNames}.
-If no names are supplied, the full \code{bamFiles} names and all samples listed in \code{bamFiles} are used
+If no names are supplied, the full \code{bamNames} names and all samples listed in \code{bamNames} are used
 as ChIP experiments without Input normalization.}
 
 \item{inputs}{Character vector containing the names of the Input samples corresponding exactly to the Input sample names in \code{bamNames},

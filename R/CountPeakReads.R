@@ -13,7 +13,7 @@
 #' @param bamNames Character vector containing the names to describe the \code{bamFiles} you are using (for example: "H3K9me3_reads"). 
 #' If no names are supplied, the full \code{bamFiles} names are used.
 #' @param chips Character vector containing the names of the ChIP samples, corresponding exactly to the ChIP sample names in \code{bamNames}.
-#' If no names are supplied, the full \code{bamFiles} names and all samples listed in \code{bamFiles} are used
+#' If no names are supplied, the full \code{bamNames} names and all samples listed in \code{bamNames} are used
 #' as ChIP experiments without Input normalization.
 #' @param inputs Character vector containing the names of the Input samples corresponding exactly to the Input sample names in \code{bamNames}, 
 #' provided in an order crresponding to the ChIP samples (This is because the function pairs the ChIP and Input samples based on the order in
@@ -65,7 +65,7 @@
 #' @importFrom Rsubread featureCounts
 #'
 #' @export
-CountPeakReads <- function(peaks,bamFiles,bamNames=bamFiles,chips=bamFiles,inputs,width=500,minOverlap = 1,
+CountPeakReads <- function(peaks,bamFiles,bamNames=bamFiles,chips=bamNames,inputs,width=500,minOverlap = 1,
                            PairedEnd=FALSE, minMQS=255,strand=0, splitOnly=FALSE, nonSplitOnly=FALSE,
                            readExtension3=0,readShiftSize=0,requireBothEndsMapped=FALSE,read2pos=5,pseudocount=8){
 

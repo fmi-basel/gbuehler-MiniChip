@@ -30,7 +30,8 @@ containing the reads mapped on the minus strand. If missing, only the \code{bwFi
 
 \item{EnsDb}{EnsDb object containing an Ensembl annotation database linking GeneIDs to gene symbols.}
 
-\item{bedFiles}{Optional character vector containing the filenames (including the full path) of any bed files (eg peaks) to be plotted.}
+\item{bedFiles}{Optional character vector containing the filenames (including the full path) of any bed files (eg peaks) to be plotted.
+They should contain columns: chrom, start,stop, gene, score, strand (-1 or 1),type (exon).}
 
 \item{gene}{Character scalar specifying the gene symbol for the gene around which the tracks should be plotted.
 If missing, a \code{plotregion} needs to be supplied instead.}

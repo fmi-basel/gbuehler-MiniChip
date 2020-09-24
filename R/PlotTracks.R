@@ -12,7 +12,8 @@
 #' @param bwNames Character vector containing the names to describe the samples (for example: "H3K9me3"). 
 #' @param txdb TxDb object containing all transcripts/genes using Ensembl Gene IDs.
 #' @param EnsDb EnsDb object containing an Ensembl annotation database linking GeneIDs to gene symbols. 
-#' @param bedFiles Optional character vector containing the filenames (including the full path) of any bed files (eg peaks) to be plotted.  
+#' @param bedFiles Optional character vector containing the filenames (including the full path) of any bed files (eg peaks) to be plotted. 
+#' They should contain columns: chrom, start,stop, gene, score, strand (-1 or 1),type (exon).  
 #' @param gene Character scalar specifying the gene symbol for the gene around which the tracks should be plotted.
 #' If missing, a \code{plotregion} needs to be supplied instead.
 #' @param plotregion A GRanges object containing the region of the genome for plotting the tracks (in case \code{gene} is not supplied).
