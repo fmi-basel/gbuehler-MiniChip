@@ -1,12 +1,14 @@
 Package: MiniChip
-Title: Analyze Chip Data
+Title: MiniChip
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Michaela",
            family = "Schwaiger",
            role = c("aut", "cre"),
            email = "michi@fmi.ch")
-Description: This package helps with ChIPseq analysis. The function SimulatePeaks shuffles peaks (any GRanges object) in the genome. The function SummitHeatmaps calulcates and plots heatmaps around peak summits (any GRanges object).
+Description: This package helps with ChIPseq or CLIPseq data analysis. You can use it to generate GC bias plots for your ChIPseq enrichments,shuffle peaks (or any other GRanges object) in the genome, 
+    generate multiple sorted heatmaps of ChIPseq reads or genomic annotations (eg promoters) around peak summits (or the center of any other any GRanges object) or metaplots (cumulative plots) of 
+    enrichments around peak summits, and find motifs under peak summits.Calculating the (Input-normalized) number of reads under peaks and plotting tracks around a region (eg gene) of interest is also possible. 
 License: GPL-2
 Encoding: UTF-8
 LazyData: true

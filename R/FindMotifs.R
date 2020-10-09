@@ -14,8 +14,9 @@
 #' @param width Numeric scalar indicating the width of the peak (around the center of each range) to use for motif finding. Default is 100.
 #' @param runMEME Logical scalar, indicating whether the MEME motif finding should be run. Default = FALSE.
 #' @param runHOMER Logical scalar, indicating whether the HOMER motif finding should be run. Default = FALSE.
+#' @param revcomp Logical scalar, indicating whether the MEME motif finding should use both strands (TRUE, Default), or only the provided strand (FALSE).
 #' @param genomepath Character string giving the full path to the genome that HOMER should use for extracting peak sequences.
-#' Only required if \code{runHOMER} = TRUE. Default = "/work/gbioinfo/DB/genomes/mm10".
+#' Only required if \code{runHOMER} = TRUE. For example, for mm10 genome use: "/work/gbioinfo/DB/genomes/mm10".
 #'
 #' @return Saves the outputs of MEME and HOMER.
 #'
@@ -42,7 +43,7 @@
 #'
 #' @export
 FindMotifs <- function(peaks,peaknames="mypeaks",genome, topn=100,width=100, 
-                       runMEME=FALSE, runHOMER=FALSE, genomepath="/work/gbioinfo/DB/genomes/mm10"){
+                       runMEME=FALSE, runHOMER=FALSE, revcomp=TRUE, genomepath){
 peaks <- resize(peaks, width = width, fix = "center")
 
 if(class(names(peaks)) == "NULL" & class(peaks$name) != "NULL"){
@@ -53,6 +54,11 @@ if(class(strand(peaks)) == "NULL" & class(peaks$strand) != "NULL"){
   strand(peaks) <- peaks$strand
 }
 
+if(missing(genome)){
+  stop("Please provide a BSGenome object!")
+}
+
+
 #remove peaks with negative start values
 peaks <- peaks[start(peaks) >= 0]
 
@@ -61,7 +67,7 @@ for (i in seq_along(topn)){
 
 
   #make fasta file for MEME
-  peaks.seq <- getSeq(genome,peaks[1:topn[i]])
+  peaks.seq <- BSgenome::getSeq(genome,peaks[1:topn[i]])
   names(peaks.seq) <- names(peaks)[1:topn[i]]
   writeXStringSet(peaks.seq,sprintf("%s.%sbp_top%s.fasta",peaknames,width,topn[i]),format = "fasta" )
 
@@ -75,9 +81,15 @@ for (i in seq_along(topn)){
   nmotifs <- "-nmotifs 3"
   maxsize <- "-maxsize 1000000"
   outputfile <- sprintf("-o %s.%sbp_top%s.motifs.meme",peaknames,width,topn[i])
+ 
 
   #run MEME
-  system2(command="/work/gbioinfo/Appz/meme/meme_4.10.0x/bin/meme",args=c(fastafile,dna,mode,strand,motiflen,nmotifs,maxsize,outputfile),wait=FALSE)
+  system("bash -cl 'module load MEME/5.1.1-foss-2019b-Python-3.7.4'")
+   if(revcomp==TRUE){
+    system2(command="/work/gbioinfo/Appz/meme/meme_4.10.0x/bin/meme",args=c(fastafile,dna,mode,strand,motiflen,nmotifs,maxsize,outputfile),wait=FALSE)
+    } else {
+    system2(command="/work/gbioinfo/Appz/meme/meme_4.10.0x/bin/meme",args=c(fastafile,dna,mode,motiflen,nmotifs,maxsize,outputfile),wait=FALSE)
+    }
   }
 
 
@@ -98,6 +110,7 @@ for (i in seq_along(topn)){
   HomerDir <-  "-preparsedDir /tungstenfs/scratch/gbuehler/bioinfo/Annotations/Homer"
 
   #run HOMER
+  system("bash -cl 'PATH=$PATH:/work/gbioinfo/Appz/Homer/Homer-current/bin && PATH=$PATH:/work/gbioinfo/Appz/weblogo/weblogo-current'")
   #system(command="PATH=$PATH:/work/gbioinfo/Appz/Homer/Homer-current/bin")
   #system(command="PATH=$PATH:/work/gbioinfo/Appz/weblogo/weblogo-current")
 

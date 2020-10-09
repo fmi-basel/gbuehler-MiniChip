@@ -12,7 +12,8 @@ FindMotifs(
   width = 100,
   runMEME = FALSE,
   runHOMER = FALSE,
-  genomepath = "/work/gbioinfo/DB/genomes/mm10"
+  revcomp = TRUE,
+  genomepath
 )
 }
 \arguments{
@@ -31,8 +32,10 @@ Default is 100. If a vector is supplied (eg. c(100,1000)), then the function gen
 
 \item{runHOMER}{Logical scalar, indicating whether the HOMER motif finding should be run. Default = FALSE.}
 
+\item{revcomp}{Logical scalar, indicating whether the MEME motif finding should use both strands (TRUE, Default), or only the provided strand (FALSE).}
+
 \item{genomepath}{Character string giving the full path to the genome that HOMER should use for extracting peak sequences.
-Only required if \code{runHOMER} = TRUE. Default = "/work/gbioinfo/DB/genomes/mm10".}
+Only required if \code{runHOMER} = TRUE. For example, for mm10 genome use: "/work/gbioinfo/DB/genomes/mm10".}
 }
 \value{
 Saves the outputs of MEME and HOMER.
