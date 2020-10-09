@@ -17,9 +17,9 @@ RoxygenNote: 7.1.1
 Depends:
     GenomicRanges
 Imports:
-    Rsubread,
     ComplexHeatmap,
-    circlize,
+    circlize, 
+    Rsubread,
     grid,
     grDevices,
     IRanges,
