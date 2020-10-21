@@ -12,7 +12,6 @@
 #'
 #' @return A list of summarized (by group) counts across peak summits.
 #'
-#' @importFrom plyr aaply
 #' @importFrom plyr laply
 #'
 #' @examples
@@ -35,7 +34,9 @@ SummarizeHeatmaps <- function(counts,sampleList,summarizing = mean){
   names(meanCounts) <- names(sampleList)
   for (i in seq_along(sampleList)) {
     print(sprintf("summarizing group %s",names(meanCounts)[i]))
-    meanCounts[[i]] <- plyr::aaply(plyr::laply(counts[sampleList[[i]]], as.matrix), c(2, 3), summarizing)
+    #meanCounts[[i]] <- plyr::aaply(plyr::laply(counts[sampleList[[i]]], as.matrix), c(2, 3), summarizing)
+    meanCounts[[i]] <- apply(plyr::laply(counts[sampleList[[i]]], as.matrix), 2:3, summarizing)
+    
   }
   return(meanCounts)
   }
