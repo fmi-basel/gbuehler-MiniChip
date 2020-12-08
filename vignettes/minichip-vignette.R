@@ -33,7 +33,7 @@ peaks1 <- makeGRangesFromDataFrame(peaks1.d,
                                    seqnames.field=c("chr"),
                                    start.field=c("start"),
                                    end.field=c("end"),
-                                   starts.in.df.are.0based=FALSE)
+                                   starts.in.df.are.0based=TRUE)
 
 peaks2 <- makeGRangesFromDataFrame(peaks2.d,
                                    keep.extra.columns=TRUE,
@@ -42,7 +42,7 @@ peaks2 <- makeGRangesFromDataFrame(peaks2.d,
                                    seqnames.field=c("chr"),
                                    start.field=c("start"),
                                    end.field=c("end"),
-                                   starts.in.df.are.0based=FALSE)
+                                   starts.in.df.are.0based=TRUE)
 
 peaks3 <- makeGRangesFromDataFrame(peaks3.d,
                                    keep.extra.columns=TRUE,
@@ -51,7 +51,7 @@ peaks3 <- makeGRangesFromDataFrame(peaks3.d,
                                    seqnames.field=c("chr"),
                                    start.field=c("start"),
                                    end.field=c("end"),
-                                   starts.in.df.are.0based=FALSE)
+                                   starts.in.df.are.0based=TRUE)
 
 ## -----------------------------------------------------------------------------
 # peaks that occur in at least 2/3 replicates
