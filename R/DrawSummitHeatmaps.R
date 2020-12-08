@@ -28,8 +28,7 @@
 #' @param use.log Logical scalar indicating wether the heatmap will be plotted in log2 scale. FALSE by default. A pseudo-count of 1 is added if Zeros are encountered in the matrix.
 #' @param splitHM Character vector of the same length as the number of rows in each table in \code{counts}, which indicates for each row in \code{counts} the membership within a certain group.
 #' The heatmap will then be split into these groups. For example, it could indicate if a peak overlaps a TSS or not. Default is that the heatmap will not be split. 
-#' @param TargetHeight Integer scalar giving the number of rows the plotted heatmap should have after averaging. Default = 0, which means no summarization will be done. If TargetHeight > 0,
-#' the number of rows in the final heatmap will be reduced and therefore splitHM cannot be used.
+#' @param TargetHeight Integer scalar giving the number of rows the plotted heatmap should have after averaging. Default = 500.
 #' @param MetaScale A character vector of the same length as heatmaps, with values "all" or "individual". Defaults to "all",
 #' which means that the maximum of the y-axis for the metaplots will correspond to the maximum of all values in all heatmaps.
 #' Otherwise the scale will correspond to the maximum of the current metaplot.
@@ -62,7 +61,7 @@
 #'
 #' @export
 DrawSummitHeatmaps <- function(counts, bamNames=names(counts), plotcols= rep("darkblue",length(bamNames)),use.log = FALSE,
-                               topCpm, medianCpm, bottomCpm, splitHM, TargetHeight = 0,
+                               topCpm, medianCpm, bottomCpm, splitHM, TargetHeight = 500,
                                orderSample = 1, orderWindows=NULL, clusterSample = 1, summarizing = "mean",show_axis=FALSE,
                                MetaScale=rep("all",length(bamNames))){
 

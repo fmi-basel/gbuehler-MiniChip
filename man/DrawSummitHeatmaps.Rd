@@ -13,7 +13,7 @@ DrawSummitHeatmaps(
   medianCpm,
   bottomCpm,
   splitHM,
-  TargetHeight = 0,
+  TargetHeight = 500,
   orderSample = 1,
   orderWindows = NULL,
   clusterSample = 1,
@@ -45,8 +45,7 @@ Any value below that will appear white. If not specified, the minimum CPM value 
 \item{splitHM}{Character vector of the same length as the number of rows in each table in \code{counts}, which indicates for each row in \code{counts} the membership within a certain group.
 The heatmap will then be split into these groups. For example, it could indicate if a peak overlaps a TSS or not. Default is that the heatmap will not be split.}
 
-\item{TargetHeight}{Integer scalar giving the number of rows the plotted heatmap should have after averaging. Default = 0, which means no summarization will be done. If TargetHeight > 0,
-the number of rows in the final heatmap will be reduced and therefore splitHM cannot be used.}
+\item{TargetHeight}{Integer scalar giving the number of rows the plotted heatmap should have after averaging. Default = 500.}
 
 \item{orderSample}{Integer scalar giving the index of the heatmap whose values the rows of all heatmaps will be ordered by.
 Defaults to 1 (the first heatmap). If set to 0, the \code{clusterSample} heatmap will clustered by hierarchical clustering instead of ordered.}

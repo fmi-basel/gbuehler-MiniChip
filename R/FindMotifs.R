@@ -82,14 +82,14 @@ for (i in seq_along(topn)){
   maxsize <- "-maxsize 1000000"
   outputfile <- sprintf("-o %s.%sbp_top%s.motifs.meme",peaknames,width,topn[i])
  
-
   #run MEME
-  system("bash -cl 'module load MEME/5.1.1-foss-2019b-Python-3.7.4'")
    if(revcomp==TRUE){
-    system2(command="/work/gbioinfo/Appz/meme/meme_4.10.0x/bin/meme",args=c(fastafile,dna,mode,strand,motiflen,nmotifs,maxsize,outputfile),wait=FALSE)
+     args <- paste(fastafile,dna,mode,strand,motiflen,nmotifs,maxsize,outputfile,sep=" ")
     } else {
-    system2(command="/work/gbioinfo/Appz/meme/meme_4.10.0x/bin/meme",args=c(fastafile,dna,mode,motiflen,nmotifs,maxsize,outputfile),wait=FALSE)
-    }
+      args <- paste(fastafile,dna,mode,motiflen,nmotifs,maxsize,outputfile,sep=" ")
+          }
+  meme.call <- paste("bash -cl 'module load MEME/5.1.1-foss-2019b-Python-3.7.4 && meme",args,"'",sep=" ")
+  system(meme.call,wait=FALSE)
   }
 
 
@@ -110,11 +110,11 @@ for (i in seq_along(topn)){
   HomerDir <-  "-preparsedDir /tungstenfs/scratch/gbuehler/bioinfo/Annotations/Homer"
 
   #run HOMER
-  system("bash -cl 'PATH=$PATH:/work/gbioinfo/Appz/Homer/Homer-current/bin && PATH=$PATH:/work/gbioinfo/Appz/weblogo/weblogo-current'")
-  #system(command="PATH=$PATH:/work/gbioinfo/Appz/Homer/Homer-current/bin")
-  #system(command="PATH=$PATH:/work/gbioinfo/Appz/weblogo/weblogo-current")
-
-  system2(command="/work/gbioinfo/Appz/Homer/Homer-current/bin/findMotifsGenome.pl",args=c(bedfile,genomepath,outputfileH,size,cores,noknown,HomerDir),wait=FALSE)
+  args <- paste(bedfile,genomepath,outputfileH,size,cores,noknown,HomerDir,sep=" ")
+  homer.call <- paste("bash -cl 'PATH=$PATH:/work/gbioinfo/Appz/Homer/Homer-current/bin && PATH=$PATH:/work/gbioinfo/Appz/weblogo/weblogo-current && findMotifsGenome.pl",args,"'",sep=" ")
+  system(homer.call,wait=FALSE)
+  
+ # system2(command="/work/gbioinfo/Appz/Homer/Homer-current/bin/findMotifsGenome.pl",args=c(bedfile,genomepath,outputfileH,size,cores,noknown,HomerDir),wait=FALSE)
  # print(unquote(c("/work/gbioinfo/Appz/Homer/Homer-current/bin/findMotifsGenome.pl",bedfile,genomepath,outputfileH,size,cores,noknown,HomerDir)))
 }
 }
