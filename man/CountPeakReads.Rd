@@ -76,8 +76,9 @@ Read reduction is performed after read shifting and extension.}
 }
 \value{
 A list of 2 matrices. Both matrices contain a column for each chip sample provided, and the same number of rows as regions provided in the GRanges object.
-The first matrix contains the (Input) normalized number of reads in each region.
-The second matrix countains the total number of reads in the the chip sample, or in the chip plus the input sample, if an input sample is provided.
+The first matrix contains the (Input) normalized number of reads in each region (log2 of Chip + \code{pseudocount}/Input + \code{pseudocount}).
+If no Input samples are provided, then the first matrix contains the counts per million (cpm) values for the ChIP samples.
+The second matrix contains the total number of reads in the the chip sample, or in the chip plus the input sample, if an input sample is provided.
 }
 \description{
 Generate normalized counts in genomic regions of interest (for example, ChIPseq peaks).
