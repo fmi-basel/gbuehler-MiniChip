@@ -1,8 +1,9 @@
 #' @title DifferentialEnrichment
 #'
-#' @description Calulate differential ChIP enrichment in peaks.
+#' @description Calculate differential ChIP enrichment in peaks.
 #'
-#' @details Calculate read counts for two sets of ChIPs, normaizes them, and calculates differential enrichment using Limma. 
+#' @details Calculates read counts for two groups of ChIPs (at least 2 replicates each), normalizes them to total mapped read counts (voom),
+#'  and calculates differential enrichment between all groups and a control group using Limma. 
 #'
 #' @param peaks A GRanges object containing your regions of interest. Must include seqnames (chromosomes), start, end, strand, and name.
 #' @param bamFiles Character vector containing the filenames (including the full path) of read alignment files in bam format.
