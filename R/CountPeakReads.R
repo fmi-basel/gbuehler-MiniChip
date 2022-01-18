@@ -18,7 +18,7 @@
 #' @param inputs Character vector containing the names of the Input samples corresponding exactly to the Input sample names in \code{bamNames}, 
 #' provided in an order crresponding to the ChIP samples (This is because the function pairs the ChIP and Input samples based on the order in
 #' the \code{chips} and \code{inputs} vectors.) If missing, no Input normalization is performed.
-#' @param width Integer scalar providing the width around the center of the peaks GRanges object provided in which the reads will be counted,default = 500. 
+#' @param width Integer scalar providing the width around the center of the peaks GRanges object provided in which the reads will be counted,default = 0. 
 #' If width=0, the provided regions will remain the original size. 
 #' @param pseudocount Numeric scalar providing the pseudocount that is added to the read counts of Chip and Input before normalization. Default is 8.
 #' @param PairedEnd Logical scalar, indicating wether reads in bam files were generated with paired-end or single-end sequencing. Default is FALSE (=single-end).

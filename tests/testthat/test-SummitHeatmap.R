@@ -9,7 +9,7 @@ test_that("SummitHeatmap generates window counts as expected", {
   strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),
   name = head(letters, 10), score = 1:10)
   names(peaks) <- NULL
-  bamFiles <- c("/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r1_818F1_multi.bam", "/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r2_818F3_multi.bam")
+  bamFiles <- c("/tungstenfs/scratch/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r1_818F1_multi.bam", "/tungstenfs/scratch/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r2_818F3_multi.bam")
   expect_error(SummitHeatmap(peaks=peak,bamFiles=bamFiles))
 
   peaks <- GenomicRanges::GRanges(
@@ -29,7 +29,7 @@ test_that("SummitHeatmap returns list of count matrices and plots heatmap as exp
     strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),
     name = head(letters, 10), summit = 1:10)
   names(peaks) <- peaks$name
-  bamFiles <- c("/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r1_818F1_multi.bam", "/work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r2_818F3_multi.bam")
+  bamFiles <- c("/tungstenfs/scratch/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r1_818F1_multi.bam", "/tungstenfs/scratch/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r2_818F3_multi.bam")
   res <- SummitHeatmap(peaks=peaks,bamFiles=bamFiles)
   expect_that(res, is_a("list"))
 })
