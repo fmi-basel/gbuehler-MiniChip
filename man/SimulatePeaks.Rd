@@ -28,6 +28,7 @@ can be used as control regions for further analysis, for example, when
 testing the overlap of your peaks with genomic annotations (genes, repeats,...).
 }
 \examples{
-SimulatePeaks(1000,rep(100,1000),chromosomeSizes=system.file("extdata", "chrNameLength_mm10_chr11.txt", package = "MiniChip"))
+SimulatePeaks(1000,rep(100,1000),chromosomeSizes=
+system.file("extdata", "chrNameLength_mm10_chr11.txt", package = "MiniChip"))
 
 }

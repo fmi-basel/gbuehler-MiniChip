@@ -79,8 +79,9 @@ bamNames <- gsub("_chr11.bam","",bamNames)
 DifferentialEnrichment(peaks=peaks,bamFiles=bamFiles,bamNames=bamNames,group=c("A","A","A","IN","IN","IN"))
 }
 \description{
-Calulate differential ChIP enrichment in peaks.
+Calculate differential ChIP enrichment in peaks.
 }
 \details{
-Calculate read counts for two sets of ChIPs, normaizes them, and calculates differential enrichment using Limma.
+Calculates read counts for two groups of ChIPs (at least 2 replicates each), normalizes them to total mapped read counts (voom),
+and calculates differential enrichment between all groups and a control group using Limma.
 }

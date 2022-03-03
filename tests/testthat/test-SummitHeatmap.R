@@ -1,6 +1,6 @@
 context("SummitHeatmap")
 
-test_that("SummitHeatmap generates window counts as expected", {
+test_that("SummitHeatmap crashes with wrong options and gives a warning if all windows are 0", {
   expect_error(SummitHeatmap(plotHM=FALSE))
 
   peaks <- GenomicRanges::GRanges(
@@ -9,27 +9,15 @@ test_that("SummitHeatmap generates window counts as expected", {
   strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),
   name = head(letters, 10), score = 1:10)
   names(peaks) <- NULL
-  bamFiles <- c("/tungstenfs/scratch/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r1_818F1_multi.bam", "/tungstenfs/scratch/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r2_818F3_multi.bam")
-  expect_error(SummitHeatmap(peaks=peak,bamFiles=bamFiles))
+  bamFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bam$")
+  expect_warning(SummitHeatmap(peaks=peaks,bamFiles=bamFiles))
 
-  peaks <- GenomicRanges::GRanges(
-    seqnames = Rle(c("chr1", "chr2", "chr1", "chr3"), c(1, 3, 2, 4)),
-    ranges = IRanges(50101:50110, end = 51111:51120),
-    strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),
-    name = head(letters, 10), summit = 1:10)
-  names(peaks) <- peaks$name
-  bamFiles <- c("work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r1_818F1_multi.bam", "work2/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r2_818F3_multi.bam")
-  expect_error(SummitHeatmap(peaks=peaks,bamFiles=bamFiles))
 })
 
-test_that("SummitHeatmap returns list of count matrices and plots heatmap as expected", {
-  peaks <- GRanges(
-    seqnames = Rle(c("chr1", "chr2", "chr1", "chr3"), c(1, 3, 2, 4)),
-    ranges = IRanges(40101:40110, end = 51111:51120),
-    strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),
-    name = head(letters, 10), summit = 1:10)
-  names(peaks) <- peaks$name
-  bamFiles <- c("/tungstenfs/scratch/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r1_818F1_multi.bam", "/tungstenfs/scratch/gbuehler/deepSeqRepos/bam//HP1a_wt_ChIP_r2_818F3_multi.bam")
+test_that("SummitHeatmap returns list of count matrices as expected", {
+  peaks <- SimulatePeaks(5000,rep(100,5000),chromosomeSizes=
+                            system.file("extdata", "chrNameLength_mm10_chr11.txt", package = "MiniChip"))
+  bamFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bam$")
   res <- SummitHeatmap(peaks=peaks,bamFiles=bamFiles)
   expect_that(res, is_a("list"))
 })

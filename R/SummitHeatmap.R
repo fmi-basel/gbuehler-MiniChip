@@ -38,12 +38,15 @@
 #' around the center of each region provided in \code{peaks}.
 #'
 #' @examples
-#' peaks <- GenomicRanges::GRanges(
-#' seqnames = Rle(c("chr1", "chr2", "chr1", "chr3"), c(1, 3, 2, 4)),
-#' ranges = IRanges(50101:50110, end = 51111:51120),
-#' strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),
-#' summit = 1:10, name = head(letters, 10))
-#' bamFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bam$")
+#' peaks <- SimulatePeaks(1000,rep(100,1000),chromosomeSizes=
+#' system.file("extdata", "chrNameLength_mm10_chr11.txt", package = "MiniChip"))
+#' #peaks <- GenomicRanges::GRanges(
+#' #seqnames = Rle(c("chr1", "chr2", "chr1", "chr3"), c(1, 3, 2, 4)),
+#' #ranges = IRanges(50101:50110, end = 51111:51120),
+#' #strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),
+#' #summit = 1:10, name = head(letters, 10))
+#' bamFiles <- list.files(system.file("extdata", package = "MiniChip"),
+#'  full.names=TRUE,pattern="*bam$")
 #' SummitHeatmap(peaks=peaks,bamFiles=bamFiles)
 #'
 #' @importFrom GenomicRanges start
@@ -147,9 +150,15 @@ SummitHeatmap <- function(peaks, bamFiles, bamNames="myreads", span=2025, step=5
     all.counts[[bam.sample]] <- all.counts[[bam.sample]][names(peaks),]
     
   }
-
+  # give warning if all counts are 0
+  if(max(all.counts[[1]]) == 0){
+    warning("All windows have 0 counts, make sure the chromosome names (seqnames) match between your GRanges object and bam files!")
+  }
+  
   #return the results
   names(all.counts) <- bamNames
   return(all.counts)
+  
+  
 }
 

@@ -21,9 +21,9 @@ AnnotationHeatmap(
 
 \item{annoname}{A character scalar to describe the annotation that was provided (for example: "promoters"). Defaults to "annotation".}
 
-\item{span}{Integer scalar specifyig the distance from the peak center to the left and right that you want your heatmap to extend to. Default is 2025.}
+\item{span}{Integer scalar specifying the distance from the peak center to the left and right that you want your heatmap to extend to. Default is 2025.}
 
-\item{step}{Integer scalar specifyig the window size in which annotation overlaps are counted. Default is 50.}
+\item{step}{Integer scalar specifying the window size in which annotation overlaps are counted. Default is 50.}
 
 \item{ignoreStrand}{Logical scalar indicating if hould an overlap should be counted only if on the same strand (ignore.strand=FALSE), or on any strand (ignore.strand=TRUE, default).}
 

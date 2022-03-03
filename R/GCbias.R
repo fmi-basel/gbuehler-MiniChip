@@ -24,10 +24,13 @@
 #'
 #' @examples
 #' library(BSgenome.Mmusculus.UCSC.mm10)
-#' bamFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bam$")[1:2]
-#' bamNames <- gsub(paste(system.file("extdata", package = "MiniChip"),"/",sep=""),"",bamFiles)
+#' bamFiles <- list.files(system.file("extdata", package = "MiniChip"),
+#'  full.names=TRUE,pattern="*bam$")[1:2]
+#' bamNames <- gsub(paste(system.file("extdata", package = "MiniChip"),
+#' "/",sep=""),"",bamFiles)
 #' bamNames <- gsub("_chr11.bam","",bamNames)
-#' GCbias(bamFiles=bamFiles,bamNames=bamNames,genome=BSgenome.Mmusculus.UCSC.mm10)
+#' GCbias(bamFiles=bamFiles,bamNames=bamNames,
+#' genome=BSgenome.Mmusculus.UCSC.mm10)
 #'
 #' @importFrom csaw readParam calculateCPM windowCounts calculateCPM
 #' @importFrom SummarizedExperiment assay rowRanges

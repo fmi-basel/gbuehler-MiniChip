@@ -16,7 +16,8 @@
 #' @return A GRanges object of randomly chosen genomic ranges of length \code{nSites} with widths \code{peak.widths}.
 #'
 #' @examples
-#' SimulatePeaks(1000,rep(100,1000),chromosomeSizes=system.file("extdata", "chrNameLength_mm10_chr11.txt", package = "MiniChip"))
+#' SimulatePeaks(1000,rep(100,1000),chromosomeSizes=
+#' system.file("extdata", "chrNameLength_mm10_chr11.txt", package = "MiniChip"))
 #'
 #' @importFrom data.table data.table
 #' @importFrom data.table :=

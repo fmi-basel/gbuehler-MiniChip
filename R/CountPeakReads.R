@@ -50,10 +50,13 @@
 #' @examples
 #' peaks <- SimulatePeaks(1000,rep(100,1000),chromosomeSizes=
 #' system.file("extdata", "chrNameLength_mm10_chr11.txt", package = "MiniChip"))
-#' bamFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bam$")
-#' bamNames <- gsub(paste(system.file("extdata", package = "MiniChip"),"/",sep=""),"",bamFiles)
+#' bamFiles <- list.files(system.file("extdata", 
+#' package = "MiniChip"), full.names=TRUE,pattern="*bam$")
+#' bamNames <- gsub(paste(system.file("extdata", 
+#' package = "MiniChip"),"/",sep=""),"",bamFiles)
 #' bamNames <- gsub("_chr11.bam","",bamNames)
-#' CountPeakReads(peaks=peaks,bamFiles=bamFiles,bamNames=bamNames,chips=bamNames[1:3],inputs=bamNames[4:6])
+#' CountPeakReads(peaks=peaks,bamFiles=bamFiles,
+#' bamNames=bamNames,chips=bamNames[1:3],inputs=bamNames[4:6])
 #'
 #' @importFrom GenomicRanges start
 #' @importFrom GenomicRanges end
@@ -75,6 +78,7 @@ CountPeakReads <- function(peaks,bamFiles,bamNames=bamFiles,chips=bamNames,input
     peaks <- peaks
   } else {
 peaks <- resize(peaks,width=width,fix="center")
+peaks <- peaks[start(peaks) >= 0 & width(peaks)== width]
   }
   
 if(class(names(peaks)) == "NULL" & class(peaks$name) != "NULL"){
@@ -101,6 +105,11 @@ f_counts <- featureCounts(bamFiles,annot.ext=saf,useMetaFeatures=FALSE,allowMult
 counts <- f_counts$counts
 colnames(counts) <- bamNames
 
+# give warning if all counts are 0
+if(max(counts) == 0){
+  warning("All regions have 0 counts, make sure the chromosome names (seqnames) match between your GRanges object and bam files!")
+}
+
 #get the number of mapped reads for each bam sample
 if (length(bamFiles) == 1){
   mapped.reads <- sum(f_counts$stat[c(1, 12), -1])
@@ -120,7 +129,7 @@ if(missing(inputs)){
     
   }
 } else {
-  #calculate the log2 (Chip/Input) enrichmnets, normalized by a mapped reads (library size) scaling factor
+  #calculate the log2 (Chip/Input) enrichments, normalized by a mapped reads (library size) scaling factor
   for (i in seq_along(chips)){
     log2enrichments[,i] <- log2(((counts[,chips[i]]+pseudocount)/(counts[,inputs[i]]+pseudocount))/((mapped.reads[chips[i]])/(mapped.reads[inputs[i]])))
     Avalues[,i] <- counts[,chips[i]] + counts[,inputs[i]]

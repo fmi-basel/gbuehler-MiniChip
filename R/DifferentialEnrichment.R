@@ -61,6 +61,7 @@
 #' @importFrom limma contrasts.fit
 #' @importFrom limma eBayes
 #' @importFrom limma topTable
+#' @importFrom stats coef
 #' 
 #' @export
 DifferentialEnrichment <- function(peaks,bamFiles,bamNames=bamFiles,group,controlGroup=group[length(group)], width=0,minOverlap = 1,
@@ -72,6 +73,7 @@ DifferentialEnrichment <- function(peaks,bamFiles,bamNames=bamFiles,group,contro
     peaks <- peaks
   } else {
     peaks <- resize(peaks,width=width,fix="center")
+    peaks <- peaks[start(peaks) >= 0 & width(peaks)== width]
   }
   
   if(class(names(peaks)) == "NULL" & class(peaks$name) != "NULL"){
@@ -97,6 +99,11 @@ DifferentialEnrichment <- function(peaks,bamFiles,bamNames=bamFiles,group,contro
   
   counts <- f_counts$counts
   colnames(counts) <- bamNames
+  
+  # give warning if all counts are 0
+  if(max(counts) == 0){
+    warning("All regions have 0 counts, make sure the chromosome names (seqnames) match between your GRanges object and bam files!")
+  }
   
   #number of mapped reads (within and outside of peaks)
   mapped.reads <- apply(f_counts$stat[c(1,12),-1],2,sum)
@@ -141,7 +148,7 @@ for (i in seq_along(contr)){
   tmp <- eBayes(tmp)
   #limma::plotMA(tmp)
   
-  top.table <- as.data.frame(topTable(tmp, sort.by = "P", n = Inf))
+  top.table <- as.data.frame(topTable(tmp, sort.by = "P", number = Inf))
   top.table$log.adj.P.Val <- -log10(top.table$adj.P.Val)
   top.table$Contrast <- names(contr)[i]
   top.table$ID <- row.names(top.table)

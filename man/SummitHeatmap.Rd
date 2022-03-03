@@ -80,12 +80,15 @@ for example the summits of ChIP peaks, or transcription start sites. The center 
 of these positions of interest (eg peak summits, TSSs). Features that lie on the minus strand will be reversed in the final output.
 }
 \examples{
-peaks <- GenomicRanges::GRanges(
-seqnames = Rle(c("chr1", "chr2", "chr1", "chr3"), c(1, 3, 2, 4)),
-ranges = IRanges(50101:50110, end = 51111:51120),
-strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),
-summit = 1:10, name = head(letters, 10))
-bamFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bam$")
+peaks <- SimulatePeaks(1000,rep(100,1000),chromosomeSizes=
+system.file("extdata", "chrNameLength_mm10_chr11.txt", package = "MiniChip"))
+#peaks <- GenomicRanges::GRanges(
+#seqnames = Rle(c("chr1", "chr2", "chr1", "chr3"), c(1, 3, 2, 4)),
+#ranges = IRanges(50101:50110, end = 51111:51120),
+#strand = Rle(strand(c("-", "+", "*", "+", "-")), c(1, 2, 2, 3, 2)),
+#summit = 1:10, name = head(letters, 10))
+bamFiles <- list.files(system.file("extdata", package = "MiniChip"),
+ full.names=TRUE,pattern="*bam$")
 SummitHeatmap(peaks=peaks,bamFiles=bamFiles)
 
 }

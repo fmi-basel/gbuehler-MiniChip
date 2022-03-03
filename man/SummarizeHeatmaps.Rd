@@ -25,12 +25,17 @@ This function takes a list of heatmap count matrices (from individual bam files)
 The matrices should have unique row names.
 }
 \examples{
-counts <- list(matrix(rnorm(21000,2,1),ncol=21,nrow=100,dimnames=list(1:100,-10:10)),
-               matrix(rnorm(21000,2,1),ncol=21,nrow=100,dimnames=list(1:100,-10:10)),
-               matrix(rnorm(21000,2,1),ncol=21,nrow=100,dimnames=list(1:100,-10:10)),
-               matrix(rnorm(21000,2,1),ncol=21,nrow=100,dimnames=list(1:100,-10:10)))
+counts <- list(matrix(rnorm(21000,2,1),ncol=21,
+nrow=100,dimnames=list(1:100,-10:10)),
+               matrix(rnorm(21000,2,1),ncol=21,
+               nrow=100,dimnames=list(1:100,-10:10)),
+               matrix(rnorm(21000,2,1),ncol=21,
+               nrow=100,dimnames=list(1:100,-10:10)),
+               matrix(rnorm(21000,2,1),ncol=21,
+               nrow=100,dimnames=list(1:100,-10:10)))
 bamNames <- c("counts1","counts2","counts3","counts4")
 names(counts) <- bamNames
-SummarizeHeatmaps(counts,sampleList=list(countsA=c("counts1","counts2"),countsB=c("counts3","counts4")))
+SummarizeHeatmaps(counts,sampleList=list
+(countsA=c("counts1","counts2"),countsB=c("counts3","counts4")))
 
 }

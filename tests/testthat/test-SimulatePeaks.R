@@ -3,5 +3,6 @@ context("SimulatePeaks")
 test_that("SimulatePeaks works as expected", {
   expect_error(SimulatePeaks())
   expect_error(SimulatePeaks(1000,100,100))
-  expect_error(SimulatePeaks(1000,100,chromosomeSizes="work/gbioinfo/DB/genomes/mm10/starIndex_BSgenome.Mmusculus.mm10/chrNameLength.txt"))
+  simPeaks <- SimulatePeaks(1000,rep(100,1000),chromosomeSizes=system.file("extdata", "chrNameLength_mm10_chr11.txt", package = "MiniChip"))
+  expect_that(length(simPeaks), equals(1000))
 })

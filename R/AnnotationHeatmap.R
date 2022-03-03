@@ -13,8 +13,8 @@
 #' @param peaks A Granges object containing your positions of interest in a genome (eg ChIP peak summits). Must include seqnames (chromosomes), start, end, strand, and name.
 #' @param annotation A GRanges object containing the annotation ranges you want to plot around peak summits.For example, promoter regions.
 #' @param annoname A character scalar to describe the annotation that was provided (for example: "promoters"). Defaults to "annotation".
-#' @param span Integer scalar specifyig the distance from the peak center to the left and right that you want your heatmap to extend to. Default is 2025.
-#' @param step Integer scalar specifyig the window size in which annotation overlaps are counted. Default is 50.
+#' @param span Integer scalar specifying the distance from the peak center to the left and right that you want your heatmap to extend to. Default is 2025.
+#' @param step Integer scalar specifying the window size in which annotation overlaps are counted. Default is 50.
 #' @param ignoreStrand Logical scalar indicating if hould an overlap should be counted only if on the same strand (ignore.strand=FALSE), or on any strand (ignore.strand=TRUE, default).
 #' @param minoverlap Integer scalar indicating the desired minimum overlap of the annotation region with the window of the heatmap 
 #' for a window to be counted as overlapping the annotation. Default is 1/2 * \code{step} (half the step size).
@@ -67,18 +67,10 @@ AnnotationHeatmap <- function(peaks,annotation,annoname = "annotation", span=202
   #remove peaks with negative start values
   peaks <- peaks[start(peaks) >= 0 & width(peaks)== span*2]
 
-
   #generate window starts and ends across span
   windows <- seq(from=0,to=span*2-step,by=step)
   binmids <- windows - span + step/2
 
-#  peaks2 <- rep(peaks,length(windows))
-#  for (w in seq_along(windows)){
-#    start(peaks2[((length(peaks)*(w-1))+1):(length(peaks)*w)]) <- start(peaks2[((length(peaks)*(w-1))+1):(length(peaks)*w)]) + windows[[w]] - window_extension
-#    end(peaks2[((length(peaks)*(w-1))+1):(length(peaks)*w)]) <- start(peaks2[((length(peaks)*(w-1))+1):(length(peaks)*w)])  + step + window_extension
-#  }
-
-  #peaks2 <- unlist(GenomicRanges::slidingWindows(peaks, width = step + (window_extension*2), step = step))
   peaks2plus <- unlist(GenomicRanges::slidingWindows(peaks[strand(peaks)!="-"], width = step, step = step),use.names=FALSE)
   peaks2minus <- rev(unlist(GenomicRanges::slidingWindows(peaks[strand(peaks)=="-"], width = step, step = step),use.names=FALSE))
   peaks2 <- c(peaks2plus,peaks2minus)
@@ -94,15 +86,6 @@ AnnotationHeatmap <- function(peaks,annotation,annoname = "annotation", span=202
   #sort the rows by the original peak GRanges object order
   overlap <- overlap[names(peaks),]
   
-  #turn around the - strand genes
- # for (i in (1:nrow(overlap))) {
-  #  if (as.character(strand(peaks2[i])) == "-") {
-  #    overlap[i,] <- rev(overlap[i,])
-     # print("Reversing windows around feature on negative strand!")
-  #  } else {
-  #    overlap[i,] <- overlap[i,]
-  #  }}
-
   #return the results
   return(overlap)
 }

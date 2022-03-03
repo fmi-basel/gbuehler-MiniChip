@@ -93,9 +93,12 @@ If no Input sample names are provided, the counts per milliion reads (cpm) for e
 \examples{
 peaks <- SimulatePeaks(1000,rep(100,1000),chromosomeSizes=
 system.file("extdata", "chrNameLength_mm10_chr11.txt", package = "MiniChip"))
-bamFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bam$")
-bamNames <- gsub(paste(system.file("extdata", package = "MiniChip"),"/",sep=""),"",bamFiles)
+bamFiles <- list.files(system.file("extdata", 
+package = "MiniChip"), full.names=TRUE,pattern="*bam$")
+bamNames <- gsub(paste(system.file("extdata", 
+package = "MiniChip"),"/",sep=""),"",bamFiles)
 bamNames <- gsub("_chr11.bam","",bamNames)
-CountPeakReads(peaks=peaks,bamFiles=bamFiles,bamNames=bamNames,chips=bamNames[1:3],inputs=bamNames[4:6])
+CountPeakReads(peaks=peaks,bamFiles=bamFiles,
+bamNames=bamNames,chips=bamNames[1:3],inputs=bamNames[4:6])
 
 }

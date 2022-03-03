@@ -45,5 +45,5 @@ test_that("AnnotationHeatmap returns a  matrix and plots heatmap as expected", {
   names(peaks) <- peaks$name
   res <- AnnotationHeatmap(peaks=peaks,annotation=annotation)
   expect_that(res, is_a("matrix"))
-  unlink("heatmaps-mypeaks",recursive=TRUE)
+ # unlink("heatmaps-mypeaks",recursive=TRUE)
 })

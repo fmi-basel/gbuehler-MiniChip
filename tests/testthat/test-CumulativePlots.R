@@ -21,8 +21,8 @@ test_that("CumulativePlots uses a list of count matrices and generates plots as 
   res <- SummitHeatmap(peaks=peaks,bamFiles=bamFiles,bamNames=bamNames)
 
   mean.plots <- CumulativePlots(res,bamNames = names(res),
-                               summarizing = "mean",overlapNames = "NA",plot=FALSE)
- # expect_that(is.numeric(mean.plots$overlap2)=="TRUE")
+                               summarizing = "mean",overlapNames = peaks$name[1:50],plot=FALSE)
+  expect_that(mean.plots$mean_overlap1,is.numeric)
   expect_error(CumulativePlots(res, bamNames = names(res), summarizing = "mean",span=50,step=2000))
   expect_error(CumulativePlots(res, bamNames = names(res), summarizing = "average",overlapNames = names(peaks)))
 
