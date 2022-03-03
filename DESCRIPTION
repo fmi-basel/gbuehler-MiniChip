@@ -1,6 +1,6 @@
 Package: MiniChip
 Title: MiniChip
-Version: 0.0.0.9200
+Version: 0.0.0.9300
 Authors@R: 
     person(given = "Michaela",
            family = "Schwaiger",
