@@ -42,7 +42,7 @@
 #'
 #' @export
 GCbias <- function(bamFiles, bamNames=bamFiles, minMQS=255,maxFrag=500,pe="none",restrict="chr11",
-                   winWidth=5000, col=inferno, genome, GCprob=TRUE,span=0.1){
+                   winWidth=5000, col=inferno, genome, GCprob=TRUE,span=0.1,plot=TRUE){
   #define parameters for read extarction
   paramPE <- csaw::readParam(minq=minMQS,max.frag=maxFrag, pe=pe,restrict=restrict)
 
@@ -72,6 +72,10 @@ GCbias <- function(bamFiles, bamNames=bamFiles, minMQS=255,maxFrag=500,pe="none"
 
   #order table by GC content
   bins_cpm <- bins_cpm[order(bins_cpm$bins_gc),]
+  
+  if(plot==FALSE){
+  return(bins_cpm)
+  } else {
 
   #plot GC against cpms
   par(mfrow=c(1,length(bamNames)))
@@ -81,5 +85,6 @@ GCbias <- function(bamFiles, bamNames=bamFiles, minMQS=255,maxFrag=500,pe="none"
   #add trendline
   loessGC <- loess(bins_cpm[,i] ~ bins_cpm$bins_gc, span=span)
   lines(bins_cpm$bins_gc,predict(loessGC),lwd=2,col="white")
+  }
   }
 }
