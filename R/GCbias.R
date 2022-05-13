@@ -17,6 +17,7 @@
 #' @param genome BSGenome object. Required parameter. For example,use BSgenome.Mmusculus.UCSC.mm10 for mouse.
 #' @param GCprob Logical scalar, indicating whether the GC content should be displayed as absolute counts (GCprob=FALSE) or as fraction of GCs (GCprob=TRUE,default).
 #' @param span Numeric scalar specifying the span that is used for loess trendline. Default= 0.1
+#' @param plot If TRUE, the output will be plotted, otherwise the matrix to generate the plots will be returned.
 #'
 #' @return This function generates a scatter plot of the number of Gs and Cs on the x-axis and the read count (cpm) on the y-axis in windows
 #' of size \code{winWidth} bp across the genome. A loess trendline is added to allow the user to see a potential GCbias trend in the data provided.  

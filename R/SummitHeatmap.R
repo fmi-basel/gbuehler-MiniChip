@@ -26,12 +26,15 @@
 #' For assignment of read pairs, number of overlapping bases from each read in the same pair will be summed. 
 #' If a negative value is provided, then a gap of up to specified size will be allowed between read and the feature that the read is assigned to. 1 by default.
 #' @param readExtension3 Integer scalar giving the number of bases extended downstream from 3' end of each read. 0 by default. Negative value is not allowed.
-#' @param readShiftSize Integer scalar specifying the number of bases the reads will be shifted downstream by. 0 by default. Negative value is not allowed.
+#' @param readShiftSize Integer scalar specifying the number of bases the reads will be shifted downstream by. 0 by default. Negative value is not allowed. 
+#' In case of mode = "Q" and PairedEnd = TRUE, it should be set to 'halfInsert' to shift each read by half the fragment size. 
 #' @param requireBothEndsMapped Logical scalar indicating if both ends from the same fragment are required to be successfully aligned before the fragment can be assigned to a feature or meta-feature. 
 #' This parameter is only appliable when PairedEnd is TRUE.
 #' @param read2pos Specifying whether each read should be reduced to its 5' most base or 3' most base. It has three possible values: NULL, 5 (denoting 5' most base) and 3 (denoting 3' most base).
 #' Default value is 5, ie. only the 5' end of the read will be counted. If a read is reduced to a single base, only that base will be considered for the read assignment.
 #' Read reduction is performed after read shifting and extension.
+#' @param mode Specify if you want to use QuasR (mode = "Q") or FeatureCounts (mode = "F", default) to count the number of rads per window.
+#' @param genome The reference genome, either a string specifying a BSgenome object or the name of a genome fasta file. Default is "BSgenome.Mmusculus.UCSC.mm10".
 #' 
 #' @return A list of matrices of the same length as the number of samples supplied in \code{bamFiles}.
 #' Each matrix contains the number of reads (or cpm) in each window (column headers indicate the middle of the window)
@@ -60,14 +63,59 @@
 #' @importFrom GenomicRanges seqnames
 #' @importFrom GenomicRanges GRanges
 #' @importFrom Rsubread featureCounts
+#' @importFrom parallel makeCluster
+#' @importFrom QuasR qAlign
+#' @importFrom QuasR qProfile
+#' @importFrom QuasR alignmentStats
 #'
 #' @export
 SummitHeatmap <- function(peaks, bamFiles, bamNames="myreads", span=2025, step=50, minOverlap = 1,
                           useCPM=TRUE,PairedEnd=FALSE, minMQS=255,strand=0, splitOnly=FALSE, nonSplitOnly=FALSE,
-                          readExtension3=0,readShiftSize=0,requireBothEndsMapped=FALSE,read2pos=5){
+                          readExtension3=0,readShiftSize=0,requireBothEndsMapped=FALSE,read2pos=5,mode="F",
+                          genome="BSgenome.Mmusculus.UCSC.mm10"){
 
+
+  if (mode == "Q"){ #use QUASR version 
+    #write a table to ead in samples for QUASR
+    write.table(data.frame(FileName=bamFiles,SampleName=bamNames),file="QUASR.txt",sep="\t",col.names=TRUE,row.names=FALSE,append=FALSE,quote=FALSE)
+    
+    #translate options
+    cl <- makeCluster(20)
+    Qpaired <- ifelse(PairedEnd ==TRUE,"fr","no")
+    selectReadPosition <- ifelse(read2pos == 3,"end","start")
+    orientation <- ifelse(strand == 1, "same", ifelse(strand == 2, "opposite","any"))
+    
+    #generate project
+    proj <- qAlign("QUASR.txt", genome, paired = Qpaired, clObj = cl)
+    #generate counts matrices
+    prf <- qProfile(proj, resize(peaks, width = 1L, fix = "center"), upstream=span,binSize = step,
+                    selectReadPosition= selectReadPosition, orientation = orientation, shift = readShiftSize, 
+                    useRead="any", clObj = cl, mapqMin = minMQS)[-1]
+    
+   if (useCPM == TRUE){ 
+     #normalize to million reads (cpm)
+    normfactor <- alignmentStats(proj)[,"mapped"]/1000000
+    prfcpm <- prf
+    for (i in seq_along(prf)){
+      prfcpm[[i]] <- prf[[i]]/normfactor[i]
+    }
+    return(prfcpm)
+   } else {
+     return(prf)
+   }
+    unlink("QUASR.txt")
+    }  
+    
+    if (mode == "F"){ #use Feature Counts version 
+  
+  
   #take the middle of the GRanges region, then define whole heatmap region
-  peaks <- resize(peaks,width=span*2,fix="center")
+  nwindows <- ceiling((span*2)/step)
+  if(nwindows %% 2 == 0){
+    nwindows <- nwindows + 1
+  }
+  regionwidth <- step * nwindows
+  peaks <- resize(peaks,width=regionwidth,fix="center")
 
   if(class(names(peaks)) == "NULL" & class(peaks$name) != "NULL"){
     names(peaks) <- peaks$name
@@ -81,16 +129,10 @@ SummitHeatmap <- function(peaks, bamFiles, bamNames="myreads", span=2025, step=5
   peaks <- peaks[start(peaks) >= 0 & width(peaks)== span*2]
 
   #generate window starts and ends across span
-  windows <- seq(from=0,to=span*2-step,by=step)
-  binmids <- windows - span + step/2
+  windows <- seq(from=0,to=regionwidth-step,by=step)
+  binmids <- windows - regionwidth/2 + step/2
 
- # peaks2 <- rep(peaks,length(windows))
-  #for (w in seq_along(windows)){
-   # start(peaks2[((length(peaks)*(w-1))+1):(length(peaks)*w)]) <- start(peaks2[((length(peaks)*(w-1))+1):(length(peaks)*w)]) + windows[[w]] - window_extension
-    #end(peaks2[((length(peaks)*(w-1))+1):(length(peaks)*w)]) <- start(peaks2[((length(peaks)*(w-1))+1):(length(peaks)*w)])  + step + window_extension
-  #}
-  #peaks2 <- unlist(GenomicRanges::slidingWindows(peaks, width = step, step = step))
-
+ #generate sliding windows across peaks 
   peaks2plus <- unlist(GenomicRanges::slidingWindows(peaks[strand(peaks)!="-"], width = step, step = step),use.names=FALSE)
   peaks2minus <- rev(unlist(GenomicRanges::slidingWindows(peaks[strand(peaks)=="-"], width = step, step = step),use.names=FALSE))
   peaks2 <- c(peaks2plus,peaks2minus)
@@ -123,22 +165,9 @@ SummitHeatmap <- function(peaks, bamFiles, bamNames="myreads", span=2025, step=5
   for (bam.sample in seq_along(bamNames)){
     counts <- matrix(f_counts$counts[,bam.sample],nrow=length(peaks),ncol=length(windows), byrow=TRUE)
 
-      #turn around the - strand genes
-  #  for (i in (1:nrow(counts))) {
-     # if (anno$Strand[i] == "-") {
- #     if (as.character(strand(peaks2[i])) == "-") {
- #       counts[i,] <- rev(counts[i,])
-        #print("Reversing windows around feature on negative strand!")
-  #    } else {
-  #      counts[i,] <- counts[i,]
-  #    }}
-
     colnames(counts) <- binmids
    # rownames(counts) <- anno$GeneID
     rownames(counts) <- GeneID
-
-   # cpm <-  ((counts+0.1)/mapped.reads[bam.sample])*1000000
-    #counts.log <- log2(cpm)
 
     #prepare counts or cpm for saving as list of matrices
     if (useCPM == TRUE) {
@@ -159,6 +188,9 @@ SummitHeatmap <- function(peaks, bamFiles, bamNames="myreads", span=2025, step=5
   names(all.counts) <- bamNames
   return(all.counts)
   
+    } else {
+      warning("mode must be one of Q (QuasR) or F (FeatureCounts)!")
+    }
   
 }
 

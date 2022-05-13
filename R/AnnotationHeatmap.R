@@ -53,8 +53,12 @@ AnnotationHeatmap <- function(peaks,annotation,annoname = "annotation", span=202
                               minoverlap = round(step/2)){
 
   #take the middle of the GRanges region, then define whole heatmap region
-  peaks <- resize(peaks,width=span*2,fix="center")
-
+  nwindows <- ceiling((span*2)/step)
+  if(nwindows %% 2 == 0){
+    nwindows <- nwindows + 1
+  }
+  regionwidth <- step * nwindows
+  peaks <- resize(peaks,width=regionwidth,fix="center")
 
    if(class(names(peaks)) == "NULL" & class(peaks$name) != "NULL"){
     names(peaks) <- peaks$name
@@ -68,8 +72,8 @@ AnnotationHeatmap <- function(peaks,annotation,annoname = "annotation", span=202
   peaks <- peaks[start(peaks) >= 0 & width(peaks)== span*2]
 
   #generate window starts and ends across span
-  windows <- seq(from=0,to=span*2-step,by=step)
-  binmids <- windows - span + step/2
+  windows <- seq(from=0,to=regionwidth-step,by=step)
+  binmids <- windows - regionwidth/2 + step/2
 
   peaks2plus <- unlist(GenomicRanges::slidingWindows(peaks[strand(peaks)!="-"], width = step, step = step),use.names=FALSE)
   peaks2minus <- rev(unlist(GenomicRanges::slidingWindows(peaks[strand(peaks)=="-"], width = step, step = step),use.names=FALSE))

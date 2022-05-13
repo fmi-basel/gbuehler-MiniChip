@@ -15,7 +15,8 @@ GCbias(
   col = inferno,
   genome,
   GCprob = TRUE,
-  span = 0.1
+  span = 0.1,
+  plot = TRUE
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ GCbias(
 \item{GCprob}{Logical scalar, indicating whether the GC content should be displayed as absolute counts (GCprob=FALSE) or as fraction of GCs (GCprob=TRUE,default).}
 
 \item{span}{Numeric scalar specifying the span that is used for loess trendline. Default= 0.1}
+
+\item{plot}{If TRUE, the output will be plotted, otherwise the matrix to generate the plots will be returned.}
 }
 \value{
 This function generates a scatter plot of the number of Gs and Cs on the x-axis and the read count (cpm) on the y-axis in windows

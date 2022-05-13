@@ -209,8 +209,8 @@ for (bam.sample in seq_along(bamNames)){
                                show_row_names = FALSE, show_column_names = FALSE,
                                bottom_annotation = bin_anno,
                                top_annotation = cumulative_anno,
-                               use_raster = TRUE, raster_device = "CairoPNG",raster_quality=1,
-                              # use_raster = TRUE, raster_device = "png",raster_quality=1,
+                              # use_raster = TRUE, raster_device = "CairoPNG",raster_quality=1,
+                               use_raster = FALSE, #raster_device = "png",raster_quality=1,
                                row_split = row_split
    )
   

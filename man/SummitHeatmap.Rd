@@ -20,7 +20,9 @@ SummitHeatmap(
   readExtension3 = 0,
   readShiftSize = 0,
   requireBothEndsMapped = FALSE,
-  read2pos = 5
+  read2pos = 5,
+  mode = "F",
+  genome = "BSgenome.Mmusculus.UCSC.mm10"
 )
 }
 \arguments{
@@ -57,7 +59,8 @@ Default value of this parameter is 0 (ie. unstranded read counting is performed 
 
 \item{readExtension3}{Integer scalar giving the number of bases extended downstream from 3' end of each read. 0 by default. Negative value is not allowed.}
 
-\item{readShiftSize}{Integer scalar specifying the number of bases the reads will be shifted downstream by. 0 by default. Negative value is not allowed.}
+\item{readShiftSize}{Integer scalar specifying the number of bases the reads will be shifted downstream by. 0 by default. Negative value is not allowed.
+In case of mode = "Q" and PairedEnd = TRUE, it should be set to 'halfInsert' to shift each read by half the fragment size.}
 
 \item{requireBothEndsMapped}{Logical scalar indicating if both ends from the same fragment are required to be successfully aligned before the fragment can be assigned to a feature or meta-feature.
 This parameter is only appliable when PairedEnd is TRUE.}
@@ -65,6 +68,10 @@ This parameter is only appliable when PairedEnd is TRUE.}
 \item{read2pos}{Specifying whether each read should be reduced to its 5' most base or 3' most base. It has three possible values: NULL, 5 (denoting 5' most base) and 3 (denoting 3' most base).
 Default value is 5, ie. only the 5' end of the read will be counted. If a read is reduced to a single base, only that base will be considered for the read assignment.
 Read reduction is performed after read shifting and extension.}
+
+\item{mode}{Specify if you want to use QuasR (mode = "Q") or FeatureCounts (mode = "F", default) to count the number of rads per window.}
+
+\item{genome}{The reference genome, either a string specifying a BSgenome object or the name of a genome fasta file. Default is "BSgenome.Mmusculus.UCSC.mm10".}
 }
 \value{
 A list of matrices of the same length as the number of samples supplied in \code{bamFiles}.
