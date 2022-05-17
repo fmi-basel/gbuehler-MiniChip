@@ -46,8 +46,14 @@
 #' @export
 CumulativePlots <- function(counts,bamNames=names(counts),span=2025,step=50,summarizing = "mean", overlapNames="NA", plot=TRUE, confInterval= .95,
                             plotcols = c("violet","darkgrey"), overlapLabels = c("overlap", "no overlap")){
-  windows <- seq(from=0,to=span*2-step,by=step)
-  binmids <- windows - span + step/2
+  nwindows <- ceiling((span*2)/step)
+  if(nwindows %% 2 == 0){
+    nwindows <- nwindows + 1
+  }
+  regionwidth <- step * nwindows
+  windows <- seq(from=0,to=regionwidth-step,by=step)
+  binmids <- windows - regionwidth/2 + step/2
+  
   avg.counts <- lapply(1:length(bamNames), matrix,  nrow=0, ncol=0)
 
   if (summarizing == "mean"){
