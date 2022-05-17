@@ -50,7 +50,7 @@
 #'
 #' @export
 AnnotationHeatmap <- function(peaks,annotation,annoname = "annotation", span=2025,step=50,ignoreStrand=TRUE,
-                              minoverlap = round(step/2)){
+                              minoverlap = ceiling(step/2)){
 
   #take the middle of the GRanges region, then define whole heatmap region
   nwindows <- ceiling((span*2)/step)
@@ -69,7 +69,7 @@ AnnotationHeatmap <- function(peaks,annotation,annoname = "annotation", span=202
   }
 
   #remove peaks with negative start values
-  peaks <- peaks[start(peaks) >= 0 & width(peaks)== span*2]
+  peaks <- peaks[start(peaks) >= 0 & width(peaks)== regionwidth]
 
   #generate window starts and ends across span
   windows <- seq(from=0,to=regionwidth-step,by=step)

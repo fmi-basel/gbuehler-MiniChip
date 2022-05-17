@@ -126,7 +126,7 @@ SummitHeatmap <- function(peaks, bamFiles, bamNames="myreads", span=2025, step=5
   }
 
   #remove peaks with negative start values
-  peaks <- peaks[start(peaks) >= 0 & width(peaks)== span*2]
+  peaks <- peaks[start(peaks) >= 0 & width(peaks)== regionwidth]
 
   #generate window starts and ends across span
   windows <- seq(from=0,to=regionwidth-step,by=step)
