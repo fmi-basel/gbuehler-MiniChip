@@ -74,9 +74,16 @@ SummitHeatmap <- function(peaks, bamFiles, bamNames="myreads", span=2025, step=5
                           readExtension3=0,readShiftSize=0,requireBothEndsMapped=FALSE,read2pos=5,mode="F",
                           genome="BSgenome.Mmusculus.UCSC.mm10"){
 
-
+  if(class(names(peaks)) == "NULL" & class(peaks$name) != "NULL"){
+    names(peaks) <- peaks$name
+  }
+  
+  if(class(strand(peaks)) == "NULL" & class(peaks$strand) != "NULL"){
+    strand(peaks) <- peaks$strand
+  }
+  
   if (mode == "Q"){ #use QUASR version 
-    #write a table to ead in samples for QUASR
+    #write a table to read in samples for QUASR
     write.table(data.frame(FileName=bamFiles,SampleName=bamNames),file="QUASR.txt",sep="\t",col.names=TRUE,row.names=FALSE,append=FALSE,quote=FALSE)
     
     #translate options
@@ -116,14 +123,6 @@ SummitHeatmap <- function(peaks, bamFiles, bamNames="myreads", span=2025, step=5
   }
   regionwidth <- step * nwindows
   peaks <- resize(peaks,width=regionwidth,fix="center")
-
-  if(class(names(peaks)) == "NULL" & class(peaks$name) != "NULL"){
-    names(peaks) <- peaks$name
-  }
-
-  if(class(strand(peaks)) == "NULL" & class(peaks$strand) != "NULL"){
-    strand(peaks) <- peaks$strand
-  }
 
   #remove peaks with negative start values
   peaks <- peaks[start(peaks) >= 0 & width(peaks)== regionwidth]
