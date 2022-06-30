@@ -46,10 +46,12 @@
 #' @export
 CumulativePlots <- function(counts,bamNames=names(counts),span=2025,step=50,summarizing = "mean", overlapNames="NA", plot=TRUE, confInterval= .95,
                             plotcols = c("violet","darkgrey"), overlapLabels = c("overlap", "no overlap")){
+  
   nwindows <- ceiling((span*2)/step)
   if(nwindows %% 2 == 0){
     nwindows <- nwindows + 1
   }
+  
   regionwidth <- step * nwindows
   windows <- seq(from=0,to=regionwidth-step,by=step)
   binmids <- windows - regionwidth/2 + step/2
