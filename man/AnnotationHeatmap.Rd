@@ -11,7 +11,7 @@ AnnotationHeatmap(
   span = 2025,
   step = 50,
   ignoreStrand = TRUE,
-  minoverlap = round(step/2)
+  minoverlap = ceiling(step/2)
 )
 }
 \arguments{
