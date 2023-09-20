@@ -40,6 +40,9 @@
 #' @param read2pos Specifying whether each read should be reduced to its 5' most base or 3' most base. It has three possible values: NULL, 5 (denoting 5' most base) and 3 (denoting 3' most base).
 #' Default value is 5, ie. only the 5' end of the read will be counted. If a read is reduced to a single base, only that base will be considered for the read assignment.
 #' Read reduction is performed after read shifting and extension.
+#' @param mode Specify if you want to use QuasR (mode = "Q") or FeatureCounts (mode = "F", default) to count the number of reads per region
+#' @param genome The reference genome, either a string specifying a BSgenome object or the name of a genome fasta file. Default is "BSgenome.Mmusculus.UCSC.mm10".
+
 #'
 #' @return A list of 2 matrices. Both matrices contain a column for each chip sample provided, and the same number of rows as regions provided in the GRanges object.
 #' The first matrix contains the (Input) normalized number of reads in each region (log2 of Chip + \code{pseudocount}/Input + \code{pseudocount}). 
@@ -67,11 +70,16 @@
 #' @importFrom GenomicRanges seqnames
 #' @importFrom GenomicRanges GRanges
 #' @importFrom Rsubread featureCounts
+#' @importFrom parallel makeCluster
+#' @importFrom QuasR qAlign
+#' @importFrom QuasR qCount
+#' @importFrom QuasR alignmentStats
 #'
 #' @export
 CountPeakReads <- function(peaks,bamFiles,bamNames=bamFiles,chips=bamNames,inputs,width=500,minOverlap = 1,
                            PairedEnd=FALSE, minMQS=255,strand=0, splitOnly=FALSE, nonSplitOnly=FALSE,
-                           readExtension3=0,readShiftSize=0,requireBothEndsMapped=FALSE,read2pos=5,pseudocount=8){
+                           readExtension3=0,readShiftSize=0,requireBothEndsMapped=FALSE,read2pos=5,pseudocount=8,mode="F",
+                           genome="BSgenome.Mmusculus.UCSC.mm10"){
 
 #extend  sites to width bp and convert ctcf.sites.gr GRanges object to SAF file 
   if (width==0){
@@ -89,6 +97,29 @@ if(class(strand(peaks)) == "NULL" & class(peaks$strand) != "NULL"){
   strand(peaks) <- peaks$strand
 }
 
+  
+  if (mode == "Q"){ #use QUASR version 
+    #write a table to read in samples for QUASR
+    write.table(data.frame(FileName=bamFiles,SampleName=bamNames),file="QUASR.txt",sep="\t",col.names=TRUE,row.names=FALSE,append=FALSE,quote=FALSE)
+    
+    #translate options
+    cl <- makeCluster(20)
+    Qpaired <- ifelse(PairedEnd ==TRUE,"fr","no")
+    selectReadPosition <- ifelse(read2pos == 3,"end","start")
+    orientation <- ifelse(strand == 1, "same", ifelse(strand == 2, "opposite","any"))
+    
+    #generate project
+    proj <- qAlign("QUASR.txt", genome, paired = Qpaired, clObj = cl)
+    #generate counts matrices
+    counts <- qCount(proj, peaks,
+                    selectReadPosition= selectReadPosition, orientation = orientation, shift = readShiftSize, 
+                    useRead="any", clObj = cl, mapqMin = minMQS)[,-1]
+    mapped.reads <- alignmentStats(proj)[,"mapped"]
+    unlink("QUASR.txt")
+  }  
+
+if (mode == "F"){ #use Feature Counts version   
+    
 saf <- data.frame(GeneID= names(peaks),Chr=seqnames(peaks),
                   Start=start(peaks), End=end(peaks),Strand=strand(peaks))
 
@@ -101,15 +132,8 @@ f_counts <- featureCounts(bamFiles,annot.ext=saf,useMetaFeatures=FALSE,allowMult
                           readShiftType="downstream",readShiftSize=readShiftSize,read2pos = read2pos,
                           splitOnly=splitOnly, nonSplitOnly=nonSplitOnly,readExtension3=readExtension3)
 
-
 counts <- f_counts$counts
 colnames(counts) <- bamNames
-
-# give warning if all counts are 0
-if(max(counts) == 0){
-  warning("All regions have 0 counts, make sure the chromosome names (seqnames) match between your GRanges object and bam files!")
-}
-
 #get the number of mapped reads for each bam sample
 if (length(bamFiles) == 1){
   mapped.reads <- sum(f_counts$stat[c(1, 12), -1])
@@ -117,6 +141,13 @@ if (length(bamFiles) == 1){
 else {
   mapped.reads <- apply(f_counts$stat[c(1, 12), -1], 2, sum)   
 }
+}
+
+# give warning if all counts are 0
+if(max(counts) == 0){
+  warning("All regions have 0 counts, make sure the chromosome names (seqnames) match between your GRanges object and bam files!")
+}
+
 names(mapped.reads) <- bamNames
 log2enrichments <- matrix(ncol=length(chips),nrow=nrow(counts))
 Avalues <- matrix(ncol=length(chips),nrow=nrow(counts))

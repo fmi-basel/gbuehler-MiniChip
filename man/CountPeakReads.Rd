@@ -21,7 +21,9 @@ CountPeakReads(
   readShiftSize = 0,
   requireBothEndsMapped = FALSE,
   read2pos = 5,
-  pseudocount = 8
+  pseudocount = 8,
+  mode = "F",
+  genome = "BSgenome.Mmusculus.UCSC.mm10"
 )
 }
 \arguments{
@@ -73,6 +75,10 @@ Default value is 5, ie. only the 5' end of the read will be counted. If a read i
 Read reduction is performed after read shifting and extension.}
 
 \item{pseudocount}{Numeric scalar providing the pseudocount that is added to the read counts of Chip and Input before normalization. Default is 8.}
+
+\item{mode}{Specify if you want to use QuasR (mode = "Q") or FeatureCounts (mode = "F", default) to count the number of reads per region}
+
+\item{genome}{The reference genome, either a string specifying a BSgenome object or the name of a genome fasta file. Default is "BSgenome.Mmusculus.UCSC.mm10".}
 }
 \value{
 A list of 2 matrices. Both matrices contain a column for each chip sample provided, and the same number of rows as regions provided in the GRanges object.
