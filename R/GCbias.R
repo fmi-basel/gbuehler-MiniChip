@@ -18,6 +18,9 @@
 #' @param GCprob Logical scalar, indicating whether the GC content should be displayed as absolute counts (GCprob=FALSE) or as fraction of GCs (GCprob=TRUE,default).
 #' @param span Numeric scalar specifying the span that is used for loess trendline. Default= 0.1
 #' @param plot If TRUE, the output will be plotted, otherwise the matrix to generate the plots will be returned.
+#' @param logCPM Logical, should the cpm be reported on log scale? 
+#' @param priorCount Prior Count for calculating cpm.
+
 #'
 #' @return This function generates a scatter plot of the number of Gs and Cs on the x-axis and the read count (cpm) on the y-axis in windows
 #' of size \code{winWidth} bp across the genome. A loess trendline is added to allow the user to see a potential GCbias trend in the data provided.  
@@ -43,7 +46,7 @@
 #'
 #' @export
 GCbias <- function(bamFiles, bamNames=bamFiles, minMQS=255,maxFrag=500,pe="none",restrict="chr11",
-                   winWidth=5000, col=inferno, genome, GCprob=TRUE,span=0.1,plot=TRUE){
+                   winWidth=5000, col=inferno, genome, GCprob=TRUE,span=0.1,plot=TRUE,logCPM=TRUE,priorCount=1){
   #define parameters for read extarction
   paramPE <- csaw::readParam(minq=minMQS,max.frag=maxFrag, pe=pe,restrict=restrict)
 
@@ -54,7 +57,7 @@ GCbias <- function(bamFiles, bamNames=bamFiles, minMQS=255,maxFrag=500,pe="none"
 
   #calculate cpm
   bins_cpm <- data.frame(csaw::calculateCPM(chip_bins, use.norm.factors=TRUE, use.offsets=FALSE,
-                                 log=TRUE, prior.count=1, assay.id="counts"))
+                                 log=logCPM, prior.count=priorCount, assay.id="counts"))
   colnames(bins_cpm) <- bamNames
 
   #extract window coordinates
