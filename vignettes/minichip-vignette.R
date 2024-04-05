@@ -91,10 +91,10 @@ bamNames <- gsub(paste(system.file("extdata", package = "MiniChip"),"/",sep=""),
 bamNames <- gsub("_chr11.bam","",bamNames)
 bamNames
 
-## ----  fig.height=5, fig.width=10, message = FALSE----------------------------
+## ----fig.height=5, fig.width=10, message = FALSE------------------------------
 GCbias(bamFiles[1:2],bamNames[1:2],pe="none", restrict="chr11",GCprob=TRUE, genome=BSgenome.Mmusculus.UCSC.mm10)
 
-## ---- message = FALSE---------------------------------------------------------
+## ----message = FALSE----------------------------------------------------------
 span <- 3025
 step <- 50
 summits <- peaks
@@ -117,7 +117,7 @@ Input <- grep("Input",names(counts),value=TRUE)[1:3]
 sampleList <- list(Adnp=Adnp,Input=Input)
 meanCounts <- SummarizeHeatmaps(counts,sampleList)
 
-## ---- fig.height=5, fig.width=10, message = FALSE-----------------------------
+## ----fig.height=5, fig.width=10, message = FALSE------------------------------
 #select peaks that overlap a TSS (+/- 1kb)
 #txdb=loadDb("/tungstenfs/scratch/gbuehler/michi/Annotations/GENCODE/Mouse/release_M23/gencode.vM23.annotation.txdb.sqlite")
 txdb=TxDb.Mmusculus.UCSC.mm10.ensGene
@@ -129,7 +129,7 @@ summit_TSS_overlap_names <- names(summits[summit_TSS_overlap == TRUE])
 CumulativePlots(meanCounts,bamNames = names(meanCounts),
                                    span=3025,step=50,summarizing = "mean",overlapNames = summit_TSS_overlap_names)
 
-## ---- fig.height=10, fig.width=8, message = FALSE-----------------------------
+## ----fig.height=10, fig.width=8, message = FALSE------------------------------
 promoters <- promoters(txdb,upstream=150,downstream=150)
 annoname <- "promoters"
 promoters.overlap <- AnnotationHeatmap(summits,annotation=promoters,annoname,span,step)
@@ -144,16 +144,4 @@ splitHM <- ifelse(summit_TSS_overlap==TRUE,"TSS","no TSS")
 heatmap_list <- DrawSummitHeatmaps(allCounts, names(allCounts), plotcol= cols, medianCpm = upper.cpm, orderSample = 1, use.log=TRUE, summarizing = "mean", orderWindows=2,MetaScale=c("all","all","individual"), TargetHeight=500,
                                    splitHM=splitHM)
 draw(heatmap_list, padding = unit(c(3, 8, 8, 2), "mm"),show_heatmap_legend=FALSE)
-
-## ---- fig.height=8, fig.width=8, message = FALSE------------------------------
-#get bigwig file names
-#all.bwFiles <- list.files("/tungstenfs/scratch/gbuehler/deepSeqRepos/bigwig/", full.names=TRUE,pattern="*bw$")
-#all.bwFiles <- grep("uni",all.bwFiles,value=TRUE)
-#bwFiles <- grep("872F",all.bwFiles,value=TRUE)[1:2]
-bwFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bw$")
-bedFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bed$")
-
-#plot
-plotTracks(bwFilesPlus=bwFiles,bwNames=c(rep("Adnp",2)),txdb=txdb,EnsDb=EnsDb.Mmusculus.v79,bedFiles=bedFiles,
-           plotregion=peaks[peaks$score==max(peaks$score)],plotExtension=5000,plotranges=rep(0.8,2))
 

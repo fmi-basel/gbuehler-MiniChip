@@ -16,7 +16,9 @@ GCbias(
   genome,
   GCprob = TRUE,
   span = 0.1,
-  plot = TRUE
+  plot = TRUE,
+  logCPM = TRUE,
+  priorCount = 1
 )
 }
 \arguments{
@@ -43,6 +45,10 @@ GCbias(
 \item{span}{Numeric scalar specifying the span that is used for loess trendline. Default= 0.1}
 
 \item{plot}{If TRUE, the output will be plotted, otherwise the matrix to generate the plots will be returned.}
+
+\item{logCPM}{Logical, should the cpm be reported on log scale?}
+
+\item{priorCount}{Prior Count for calculating cpm.}
 }
 \value{
 This function generates a scatter plot of the number of Gs and Cs on the x-axis and the read count (cpm) on the y-axis in windows

@@ -206,6 +206,7 @@ for (bam.sample in seq_along(bamNames)){
   ht_list <- ht_list + Heatmap(counts.sorted,name = bamNames[bam.sample], cluster_rows = FALSE, cluster_columns = FALSE,
                                column_order = colnames(counts.sorted), col = plotcolor,
                                column_title = bamNames[bam.sample], column_title_gp = gpar(fontsize = 10, fontface = "bold"),
+                               column_title_rot = 45,
                                show_row_names = FALSE, show_column_names = FALSE,
                                bottom_annotation = bin_anno,
                                top_annotation = cumulative_anno,
