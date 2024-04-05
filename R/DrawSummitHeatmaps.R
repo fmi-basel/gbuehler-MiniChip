@@ -68,6 +68,14 @@ DrawSummitHeatmaps <- function(counts, bamNames=names(counts), plotcols= rep("da
                                orderSample = 1, orderWindows=NULL, clusterSample = 1, summarizing = "mean",show_axis=FALSE,
                                MetaScale=rep("all",length(bamNames))){
 
+#set some heatmap otions:
+ht_opt(heatmap_column_names_gp = gpar(fontface = "italic"), 
+         heatmap_column_title_gp = gpar(fontsize = 10, fontface = "bold"),
+         legend_border = "black",
+         heatmap_border = TRUE,
+         annotation_border = FALSE
+)
+  
 #select ordering by middle window or clustering approach
 if(orderSample > 0){
   counts1 <- (counts[[bamNames[orderSample]]])
@@ -121,7 +129,7 @@ for (bam.sample in seq_along(bamNames)){
 }
   #generate cumulative plot as heatmap annotation
   cumulative_anno <- HeatmapAnnotation(x=anno_lines(counts.median,size=unit(1, "mm"),axis=show_axis,smooth=FALSE,
-                                 border=FALSE, ylim=anno.lims,
+                                 ylim=anno.lims,
                                  gp=gpar(lwd=2,col=plotcols[bam.sample])),show_annotation_name=FALSE)
 
   #select log transformed or original count values based on use.log option
@@ -201,11 +209,12 @@ for (bam.sample in seq_along(bamNames)){
     row_split <- row_split1
   }
     
-
-#generate the heatmap list entry for the current sample (sorted by the middle values of the specified sample (orderSample option)) and append to complete heatmap list
-  ht_list <- ht_list + Heatmap(counts.sorted,name = bamNames[bam.sample], cluster_rows = FALSE, cluster_columns = FALSE,
+  #generate the heatmap list entry for the current sample (sorted by the middle values of the specified sample (orderSample option)) and append to complete heatmap list
+    
+    ht_list <- ht_list + Heatmap(counts.sorted,name = bamNames[bam.sample], cluster_rows = FALSE, cluster_columns = FALSE,
                                column_order = colnames(counts.sorted), col = plotcolor,
-                               column_title = bamNames[bam.sample], column_title_gp = gpar(fontsize = 10, fontface = "bold"),
+                               column_title = bamNames[bam.sample], 
+                               #column_title_gp = gpar(fontsize = 10, fontface = "bold"),
                                column_title_rot = 45,
                                show_row_names = FALSE, show_column_names = FALSE,
                                bottom_annotation = bin_anno,
