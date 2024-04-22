@@ -36,11 +36,7 @@
 #' @return A complex heatmap object containing a heatmap for each sample provided in \code{counts},
 #' sorted by the values in the middle window (around peak summit) of the chosen \code{orderSample}.
 #'
-#' @importFrom ComplexHeatmap Heatmap
-#' @importFrom ComplexHeatmap HeatmapAnnotation
-#' @importFrom ComplexHeatmap anno_text
-#' @importFrom ComplexHeatmap max_text_width
-#' @importFrom ComplexHeatmap anno_lines
+#' @importFrom ComplexHeatmap Heatmap HeatmapAnnotation anno_text max_text_width anno_lines ht_opt
 #' @importFrom grid gpar
 #' @importFrom grid unit
 #' @importFrom grid pushViewport

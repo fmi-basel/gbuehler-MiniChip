@@ -82,7 +82,8 @@ GCbias <- function(bamFiles, bamNames=bamFiles, minMQS=255,maxFrag=500,pe="none"
   } else {
 
   #plot GC against cpms
-  par(mfrow=c(1,length(bamNames)))
+  par(mfrow = c(ceiling(length(bamNames)/4),4))  
+#  par(mfrow=c(1,length(bamNames)))
   for (i in seq_along(bamNames)){
   smoothScatter(bins_cpm$bins_gc, bins_cpm[,i], colramp=col,xlab=xaxislab,ylab="cpm",main=bamNames[i])
 
