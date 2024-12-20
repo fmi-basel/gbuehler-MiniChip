@@ -11,6 +11,7 @@ suppressPackageStartupMessages({
   library(GenomicFeatures)
   library(ggplot2)
   library(reshape2)
+  library(dplyr)
   library(BSgenome.Mmusculus.UCSC.mm10)
   #library(TxDb.Mmusculus.UCSC.mm10.knownGene)
   library(TxDb.Mmusculus.UCSC.mm10.ensGene)
@@ -144,4 +145,34 @@ splitHM <- ifelse(summit_TSS_overlap==TRUE,"TSS","no TSS")
 heatmap_list <- DrawSummitHeatmaps(allCounts, names(allCounts), plotcol= cols, medianCpm = upper.cpm, orderSample = 1, use.log=TRUE, summarizing = "mean", orderWindows=2,MetaScale=c("all","all","individual"), TargetHeight=500,
                                    splitHM=splitHM)
 draw(heatmap_list, padding = unit(c(3, 8, 8, 2), "mm"),show_heatmap_legend=FALSE)
+
+## -----------------------------------------------------------------------------
+#bigwig files
+bigwigFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bw$")
+bigwigNames <- c("Adnp_r1","Adnp_r2")
+bigwigGroupNames <- c("Adnp","Adnp")
+
+#region for plotting
+ROI <- peaks[peaks$score==max(peaks$score)]
+ROI <- resize(ROI,1000L, fix="center")
+
+#gene annotations
+genes <- genes(txdb)
+gene_anno <- genes(EnsDb.Mmusculus.v79)
+mcols(genes) <- dplyr::left_join(data.frame(mcols(genes)),data.frame(mcols(gene_anno)),by=c("gene_id"="gene_id"))
+exons <- exons(txdb)
+
+#repeat annotations
+data(repeat_annotation, package = "MiniChip")
+reps
+
+#calculate data frames for track plotting
+trackData <- calcTracks(bigwigFiles, bigwigNames, bigwigGroupNames, ROI, CoverageSmoothing=TRUE, smoothing_window=20,reps=reps,genes=genes,exons=exons)
+
+## ----fig.height=10,fig.width=10-----------------------------------------------
+# Define the hex codes for each group
+  color_map <- c(
+    "Adnp" = "#3aa3db"
+  )
+plotTracks(trackData, bigwigNames, color_map)
 

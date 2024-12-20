@@ -50,9 +50,9 @@
 #'
 #' @examples
 #' library(methods)
-#' counts <- list(matrix(abs(rnorm(21000,2,1)),ncol=21,
+#' counts <- list(matrix(abs(rnorm(2100,2,1)),ncol=21,
 #' nrow=100,dimnames=list(1:100,-10:10)),
-#'                matrix(abs(rnorm(21000,2,1)),ncol=21,
+#'                matrix(abs(rnorm(2100,2,1)),ncol=21,
 #'                nrow=100,dimnames=list(1:100,-10:10)))
  #' names(counts) <- c("counts1","counts2")
 #' DrawSummitHeatmaps(counts, orderSample=1, bottomCpm = c(0,0), 
