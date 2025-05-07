@@ -82,7 +82,7 @@ random.peaks <-  SimulatePeaks(nSites,peak.widths,chromosomeSizes=system.file("e
 ## -----------------------------------------------------------------------------
 #select bam files from Adnp experiment
 bamFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bam$")
-#all.bamFiles <- list.files("/tungstenfs/scratch/gbuehler/deepSeqRepos/bam/", full.names=TRUE,pattern="*bam$")
+#all.bamFiles <- list.files("/tachyon/scratch/gbuehler/deepSeqData/bam/", full.names=TRUE,pattern="*bam$")
 #all.bamFiles <- grep("test",all.bamFiles,value=TRUE,invert=TRUE)
 #bamFiles <- grep("1950F",all.bamFiles,value=TRUE)[1:8]
 bamFiles

@@ -31,7 +31,7 @@ If no names are supplied, the names of the list provided in \code{counts} are us
 \item{plotcols}{Character vector of colors of the same length as the number of heatmaps drawn, corresponding to the colors for the medianCpm
 value for the heatmaps. Default is darkblue for all heatmaps.}
 
-\item{use.log}{Logical scalar indicating wether the heatmap will be plotted in log2 scale. FALSE by default. A pseudo-count of 1 is added if Zeros are encountered in the matrix.}
+\item{use.log}{Logical scalar indicating whether the heatmap will be plotted in log2 scale. FALSE by default. A pseudo-count of 1 is added if Zeros are encountered in the matrix.}
 
 \item{topCpm}{Numeric vector of the same length as the number of heatmaps drawn, indicating the CPM values that correspond to the black color. Any value above that will appear black.
 If not specified, maximum CPM value in the current count table is used.}
@@ -73,8 +73,8 @@ Plots heatmaps of pre-calculated read counts around the centers of provided regi
 }
 \details{
 Plots heatmaps of pre-calculated read counts around the centers of provided regions of interest, for example of ChIP peaks.
-If multiple heatmap count tables a re supplied as a named list, it clusters or sorts the rows of a chosen heatmap based on its count values
-and keeps the rows of all otehr heatmaps in the same order.
+If multiple heatmap count tables are supplied as a named list, it clusters or sorts the rows of a chosen heatmap based on its count values
+and keeps the rows of all other heatmaps in the same order.
 }
 \examples{
 library(methods)

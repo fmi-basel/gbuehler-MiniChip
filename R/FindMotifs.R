@@ -75,7 +75,7 @@ for (i in seq_along(topn)){
   #DEFINE MEME ARGUMENTS
   fastafile <- sprintf("%s.%sbp_top%s.fasta",peaknames,width,topn[i])
   dna <- "-dna"
-  mode <- "-mod oops"
+  mode <- "-mod zoops"
   strand <- "-revcomp"
   motiflen <- "-maxw 25"
   nmotifs <- "-nmotifs 3"
@@ -107,7 +107,7 @@ for (i in seq_along(topn)){
   size <- sprintf("-size %d",width)
   cores <- "-p 10"
   noknown <- "-noknown"
-  HomerDir <-  "-preparsedDir /tungstenfs/scratch/gbuehler/bioinfo/Annotations/Homer"
+  HomerDir <-  "-preparsedDir /tachyon/scratch/gbuehler/bioinfo/Annotations/Homer"
 
   #run HOMER
   args <- paste(bedfile,genomepath,outputfileH,size,cores,noknown,HomerDir,sep=" ")

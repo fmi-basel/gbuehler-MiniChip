@@ -92,7 +92,7 @@ peaks1.2u <- peaks1.2[overlapsAny(peaks1.2,peaks3.1) ==FALSE & overlapsAny(peaks
 peaks <- c(peaks3.1,peaks3.2u,peaks1.2u)
 ```
 
-We can now generate a peaknames object describing the peaks GRanges object we have just selected (for later use), and look at the peaks GRanges object to make sure it countains seqnames (chromosomes), start, end, strand, summit, and name filedds, as required by many functions in the MiniChip package.
+We can now generate a peaknames object describing the peaks GRanges object we have just selected (for later use), and look at the peaks GRanges object to make sure it countains seqnames (chromosomes), start, end, strand, summit, and name columns, as required by many functions in the MiniChip package.
 
 ```{r}
 peaknames <- "Adnp_peaks"
@@ -117,7 +117,7 @@ First, we select the bam files of mapped reads that we want to use from the gbue
 ```{r}
 #select bam files from Adnp experiment
 bamFiles <- list.files(system.file("extdata", package = "MiniChip"), full.names=TRUE,pattern="*bam$")
-#all.bamFiles <- list.files("/tungstenfs/scratch/gbuehler/deepSeqRepos/bam/", full.names=TRUE,pattern="*bam$")
+#all.bamFiles <- list.files("/tachyon/scratch/gbuehler/deepSeqData/bam/", full.names=TRUE,pattern="*bam$")
 #all.bamFiles <- grep("test",all.bamFiles,value=TRUE,invert=TRUE)
 #bamFiles <- grep("1950F",all.bamFiles,value=TRUE)[1:8]
 bamFiles

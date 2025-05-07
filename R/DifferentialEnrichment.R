@@ -110,7 +110,7 @@ DifferentialEnrichment <- function(peaks,bamFiles,bamNames=bamFiles,group,contro
   names(mapped.reads) <- bamNames
   
   
-#generate DE object and calulte normalisation factors from library size (number of mapped reads)
+#generate DE object and calculate normalisation factors from library size (number of mapped reads)
 d <- DGEList(counts,lib.size=mapped.reads)
 d <- calcNormFactors(d,method="none")
 

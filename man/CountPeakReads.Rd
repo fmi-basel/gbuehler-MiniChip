@@ -65,7 +65,8 @@ Default value of this parameter is 0 (ie. unstranded read counting is performed 
 
 \item{readExtension3}{Integer scalar giving the number of bases extended downstream from 3' end of each read. 0 by default. Negative value is not allowed.}
 
-\item{readShiftSize}{Integer scalar specifying the number of bases the reads will be shifted downstream by. 0 by default. Negative value is not allowed.}
+\item{readShiftSize}{Integer scalar specifying the number of bases the reads will be shifted downstream by. 0 by default. Negative value is not allowed.
+In case of mode = "Q" and PairedEnd = TRUE, it should be set to 'halfInsert' to shift each read by half the fragment size.}
 
 \item{requireBothEndsMapped}{Logical scalar indicating if both ends from the same fragment are required to be successfully aligned before the fragment can be assigned to a feature or meta-feature.
 This parameter is only appliable when PairedEnd is TRUE.}

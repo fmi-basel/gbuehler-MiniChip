@@ -25,9 +25,9 @@ calcTracks(
 
 \item{ROI}{A GRanges object containing your single region of interest that should be plotted. Must include seqnames (chromosomes), start, end.}
 
-\item{CoverageSmoothing}{Logical scalar, indicating whether the coverage tracks should be smoothed.}
+\item{CoverageSmoothing}{Logical scalar, indicating whether the coverage tracks should be smoothed. Default: TRUE.}
 
-\item{smoothing_window}{Numeric scalar providing the window size for smoothing.}
+\item{smoothing_window}{Numeric scalar providing the window size for smoothing. Default: 20.}
 
 \item{reps}{A GRanges object containing all repeats in the genome, or at least the ones overlapping the \code{ROI}.}
 

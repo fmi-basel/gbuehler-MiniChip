@@ -1,6 +1,6 @@
 Package: MiniChip
 Title: MiniChip
-Version: 0.0.0.9600
+Version: 0.0.0.9700
 Authors@R: 
     person(given = "Michaela",
            family = "Schwaiger",
@@ -53,7 +53,8 @@ Imports:
     zoo,
     cowplot,
     patchwork,
-    S4Vectors
+    S4Vectors,
+    methods
 Suggests: 
     testthat,
     knitr,

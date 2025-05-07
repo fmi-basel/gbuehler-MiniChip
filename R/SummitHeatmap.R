@@ -70,126 +70,301 @@
 #'
 #' @export
 SummitHeatmap <- function(peaks, bamFiles, bamNames="myreads", span=2025, step=50, minOverlap = 1,
-                          useCPM=TRUE,PairedEnd=FALSE, minMQS=255,strand=0, splitOnly=FALSE, nonSplitOnly=FALSE,
-                          readExtension3=0,readShiftSize=0,requireBothEndsMapped=FALSE,read2pos=5,mode="F",
+                          useCPM=TRUE, PairedEnd=FALSE, minMQS=255, strand=0, splitOnly=FALSE, nonSplitOnly=FALSE,
+                          readExtension3=0, readShiftSize=0, requireBothEndsMapped=FALSE, read2pos=5, mode="F",
                           genome="BSgenome.Mmusculus.UCSC.mm10"){
-
-  if(class(names(peaks)) == "NULL" & class(peaks$name) != "NULL"){
+  
+  # Input validation
+  
+  # Check if peaks is a GRanges object
+  if (!inherits(peaks, "GRanges")) {
+    stop("'peaks' must be a GRanges object")
+  }
+  
+  # Check if bamFiles is provided and is a character vector
+  if (missing(bamFiles)) {
+    stop("'bamFiles' parameter is required")
+  }
+  if (!is.character(bamFiles)) {
+    stop("'bamFiles' must be a character vector containing file paths")
+  }
+  
+  # Check if all BAM files exist
+  non_existing_files <- bamFiles[!file.exists(bamFiles)]
+  if (length(non_existing_files) > 0) {
+    stop(paste0("The following BAM files don't exist: ", 
+                paste(non_existing_files, collapse=", ")))
+  }
+  
+  # Check if bamNames has the same length as bamFiles
+  if (length(bamNames) != 1 && length(bamNames) != length(bamFiles)) {
+    stop(paste0("'bamNames' must have the same length as 'bamFiles' or be a single value. ",
+                "Length of bamFiles: ", length(bamFiles), 
+                ", length of bamNames: ", length(bamNames)))
+  }
+  
+  # If bamNames is a single value and bamFiles has multiple files, replicate bamNames
+  if (length(bamNames) == 1 && length(bamFiles) > 1) {
+    bamNames <- rep(bamNames, length(bamFiles))
+  }
+  
+  # Check numeric parameters
+  if (!is.numeric(span) || span <= 0) {
+    stop("'span' must be a positive numeric value")
+  }
+  
+  if (!is.numeric(step) || step <= 0) {
+    stop("'step' must be a positive numeric value")
+  }
+  
+  if (!is.numeric(minOverlap)) {
+    stop("'minOverlap' must be a numeric value")
+  }
+  
+  if (!is.numeric(minMQS) || minMQS < 0) {
+    stop("'minMQS' must be a non-negative numeric value")
+  }
+  
+  if (!is.numeric(readExtension3) || readExtension3 < 0) {
+    stop("'readExtension3' must be a non-negative numeric value")
+  }
+  
+  if (!is.numeric(readShiftSize) || readShiftSize < 0) {
+    if (!(mode == "Q" && PairedEnd && readShiftSize == "halfInsert")) {
+      stop("'readShiftSize' must be a non-negative numeric value or 'halfInsert' (only when mode='Q' and PairedEnd=TRUE)")
+    }
+  }
+  
+  # Check boolean parameters
+  if (!is.logical(useCPM)) {
+    stop("'useCPM' must be a logical value (TRUE or FALSE)")
+  }
+  
+  if (!is.logical(PairedEnd)) {
+    stop("'PairedEnd' must be a logical value (TRUE or FALSE)")
+  }
+  
+  if (!is.logical(splitOnly)) {
+    stop("'splitOnly' must be a logical value (TRUE or FALSE)")
+  }
+  
+  if (!is.logical(nonSplitOnly)) {
+    stop("'nonSplitOnly' must be a logical value (TRUE or FALSE)")
+  }
+  
+  if (!is.logical(requireBothEndsMapped)) {
+    stop("'requireBothEndsMapped' must be a logical value (TRUE or FALSE)")
+  }
+  
+  # Check if splitOnly and nonSplitOnly are not both TRUE
+  if (splitOnly && nonSplitOnly) {
+    stop("'splitOnly' and 'nonSplitOnly' cannot both be TRUE")
+  }
+  
+  # Check requireBothEndsMapped only applicable when PairedEnd is TRUE
+  if (requireBothEndsMapped && !PairedEnd) {
+    warning("'requireBothEndsMapped' is only applicable when PairedEnd=TRUE. Setting will be ignored.")
+  }
+  
+  # Check strand parameter
+  if (!is.numeric(strand) || !all(strand %in% c(0, 1, 2))) {
+    stop("'strand' must be one of the following values: 0 (unstranded), 1 (stranded), or 2 (reversely stranded)")
+  }
+  
+  if (length(strand) != 1 && length(strand) != length(bamFiles)) {
+    stop(paste0("Length of 'strand' must be either 1 or equal to the number of BAM files. ",
+                "Current length: ", length(strand), ", number of BAM files: ", length(bamFiles)))
+  }
+  
+  # Check read2pos parameter
+  if (!is.null(read2pos) && !(read2pos %in% c(5, 3))) {
+    stop("'read2pos' must be NULL, 5, or 3")
+  }
+  
+  # Check mode parameter
+  if (!(mode %in% c("F", "Q"))) {
+    stop("'mode' must be either 'F' (FeatureCounts) or 'Q' (QuasR)")
+  }
+  
+  # Check if QuasR is installed if mode is "Q"
+  if (mode == "Q" && !requireNamespace("QuasR", quietly = TRUE)) {
+    stop("'QuasR' package is required when mode='Q'. Please install it with BiocManager::install('QuasR')")
+  }
+  
+  # Check if Rsubread is installed if mode is "F"
+  if (mode == "F" && !requireNamespace("Rsubread", quietly = TRUE)) {
+    stop("'Rsubread' package is required when mode='F'. Please install it with BiocManager::install('Rsubread')")
+  }
+  
+  # Now proceed with the original function logic
+  if (is.null(names(peaks)) && !is.null(peaks$name)) {
     names(peaks) <- peaks$name
   }
   
-  if(class(strand(peaks)) == "NULL" & class(peaks$strand) != "NULL"){
+  if (is.null(strand(peaks)) && !is.null(peaks$strand)) {
     strand(peaks) <- peaks$strand
   }
   
-  if (mode == "Q"){ #use QUASR version 
+  # Check if names are available for peaks
+  if (is.null(names(peaks))) {
+    warning("No names found for peaks. Using automatically generated names.")
+    names(peaks) <- paste0("peak_", seq_along(peaks))
+  }
+  
+  # Check if strand information is available
+  if (all(is.na(strand(peaks)))) {
+    warning("No strand information found for peaks. Setting all strands to '*'.")
+    strand(peaks) <- "*"
+  }
+  
+  if (mode == "Q") { # use QUASR version 
     #write a table to read in samples for QUASR
-    write.table(data.frame(FileName=bamFiles,SampleName=bamNames),file="QUASR.txt",sep="\t",col.names=TRUE,row.names=FALSE,append=FALSE,quote=FALSE)
+    write.table(data.frame(FileName=bamFiles, SampleName=bamNames), file="QUASR.txt", sep="\t", col.names=TRUE, row.names=FALSE, append=FALSE, quote=FALSE)
     
     #translate options
-    cl <- makeCluster(20)
-    Qpaired <- ifelse(PairedEnd ==TRUE,"fr","no")
-    selectReadPosition <- ifelse(read2pos == 3,"end","start")
-    orientation <- ifelse(strand == 1, "same", ifelse(strand == 2, "opposite","any"))
+    cl <- tryCatch({
+      makeCluster(20)
+    }, error = function(e) {
+      warning("Could not create cluster with 20 cores. Using 1 core instead.")
+      makeCluster(1)
+    })
+    
+    Qpaired <- ifelse(PairedEnd == TRUE, "fr", "no")
+    selectReadPosition <- ifelse(read2pos == 3, "end", "start")
+    orientation <- ifelse(strand == 1, "same", ifelse(strand == 2, "opposite", "any"))
     
     #generate project
-    proj <- qAlign("QUASR.txt", genome, paired = Qpaired, clObj = cl)
+    tryCatch({
+      proj <- qAlign("QUASR.txt", genome, paired = Qpaired, clObj = cl)
+    }, error = function(e) {
+      stop(paste0("Error in qAlign: ", conditionMessage(e), 
+                  "\nMake sure 'genome' parameter is valid and QuasR is properly configured."))
+    })
+    
     #generate counts matrices
-    prf <- qProfile(proj, resize(peaks, width = 1L, fix = "center"), upstream=span,binSize = step,
-                    selectReadPosition= selectReadPosition, orientation = orientation, shift = readShiftSize, 
-                    useRead="any", clObj = cl, mapqMin = minMQS)[-1]
+    tryCatch({
+      prf <- qProfile(proj, resize(peaks, width = 1L, fix = "center"), upstream=span, binSize = step,
+                      selectReadPosition= selectReadPosition, orientation = orientation, shift = readShiftSize, 
+                      useRead="any", clObj = cl, mapqMin = minMQS)[-1]
+    }, error = function(e) {
+      stop(paste0("Error in qProfile: ", conditionMessage(e)))
+    })
     
-   if (useCPM == TRUE){ 
-     #normalize to million reads (cpm)
-    normfactor <- alignmentStats(proj)[,"mapped"]/1000000
-    prfcpm <- prf
-    for (i in seq_along(prf)){
-      prfcpm[[i]] <- prf[[i]]/normfactor[i]
+    if (useCPM == TRUE) { 
+      #normalize to million reads (cpm)
+      normfactor <- alignmentStats(proj)[,"mapped"]/1000000
+      prfcpm <- prf
+      for (i in seq_along(prf)) {
+        prfcpm[[i]] <- prf[[i]]/normfactor[i]
+      }
+      unlink("QUASR.txt")
+      return(prfcpm)
+    } else {
+      unlink("QUASR.txt")
+      return(prf)
     }
-    return(prfcpm)
-   } else {
-     return(prf)
-   }
-    unlink("QUASR.txt")
-    }  
-    
-    if (mode == "F"){ #use Feature Counts version 
-  
-  
-  #take the middle of the GRanges region, then define whole heatmap region
-  nwindows <- ceiling((span*2)/step)
-  if(nwindows %% 2 == 0){
-    nwindows <- nwindows + 1
   }
-  regionwidth <- step * nwindows
-  peaks <- resize(peaks,width=regionwidth,fix="center")
-
-  #remove peaks with negative start values
-  peaks <- peaks[start(peaks) >= 0 & width(peaks)== regionwidth]
-
-  #generate window starts and ends across span
-  windows <- seq(from=0,to=regionwidth-step,by=step)
-  binmids <- windows - regionwidth/2 + step/2
-
- #generate sliding windows across peaks 
-  peaks2plus <- unlist(GenomicRanges::slidingWindows(peaks[strand(peaks)!="-"], width = step, step = step),use.names=FALSE)
-  peaks2minus <- rev(unlist(GenomicRanges::slidingWindows(peaks[strand(peaks)=="-"], width = step, step = step),use.names=FALSE))
-  peaks2 <- c(peaks2plus,peaks2minus)
-
-
-  #generate  saf format data frame
-    saf <- data.frame(GeneID= names(peaks2), Chr=seqnames(peaks2),
-                        Start=start(peaks2), End=end(peaks2),Strand=strand(peaks2))
-
-  #calculate the number of reads in each window for all bam files specified
-  f_counts <- featureCounts(bamFiles,annot.ext=saf,useMetaFeatures=FALSE,allowMultiOverlap=TRUE,read2pos=read2pos,
-                            minOverlap=minOverlap,readExtension3=readExtension3,countMultiMappingReads=FALSE,fraction=FALSE,
-                            minMQS=minMQS,strandSpecific=strand,nthreads=20,verbose=FALSE,isPairedEnd=PairedEnd,
-                            splitOnly=splitOnly,nonSplitOnly=nonSplitOnly,readShiftType="downstream",readShiftSize=readShiftSize,requireBothEndsMapped=requireBothEndsMapped)
-
-  #extract gene annotation (for peak names)
-#  anno <-  f_counts$annotation[1:(nrow(f_counts$annotation)/length(windows)),]
-  GeneID <- matrix(names(peaks2),nrow=length(peaks),ncol=length(windows), byrow=TRUE)[,1]
-
-  #extract number of mapped reads for all bam samples
-  if(length(bamNames)>1){
-  mapped.reads <- apply(f_counts$stat[c(1,11,12),-1],2,sum)
+  
+  if (mode == "F") { #use Feature Counts version 
+    
+    #take the middle of the GRanges region, then define whole heatmap region
+    nwindows <- ceiling((span*2)/step)
+    if (nwindows %% 2 == 0) {
+      nwindows <- nwindows + 1
+    }
+    regionwidth <- step * nwindows
+    
+    # Try to resize peaks and catch potential errors
+    tryCatch({
+      peaks <- resize(peaks, width=regionwidth, fix="center")
+    }, error = function(e) {
+      stop(paste0("Error resizing peaks: ", conditionMessage(e), 
+                  "\nMake sure your peaks GRanges object is properly constructed."))
+    })
+    
+    #remove peaks with negative start values
+    original_peak_count <- length(peaks)
+    peaks <- peaks[start(peaks) >= 0 & width(peaks) == regionwidth]
+    if (length(peaks) < original_peak_count) {
+      warning(paste0(original_peak_count - length(peaks), 
+                     " peaks were removed because they had negative start positions or incorrect width."))
+    }
+    
+    if (length(peaks) == 0) {
+      stop("No valid peaks left after filtering. Please check your input peaks.")
+    }
+    
+    #generate window starts and ends across span
+    windows <- seq(from=0, to=regionwidth-step, by=step)
+    binmids <- windows - regionwidth/2 + step/2
+    
+    #generate sliding windows across peaks 
+    tryCatch({
+      peaks2plus <- unlist(GenomicRanges::slidingWindows(peaks[strand(peaks) != "-"], width = step, step = step), use.names=FALSE)
+      peaks2minus <- rev(unlist(GenomicRanges::slidingWindows(peaks[strand(peaks) == "-"], width = step, step = step), use.names=FALSE))
+      peaks2 <- c(peaks2plus, peaks2minus)
+    }, error = function(e) {
+      stop(paste0("Error generating sliding windows: ", conditionMessage(e)))
+    })
+    
+    #generate saf format data frame
+    saf <- data.frame(GeneID = names(peaks2), Chr = seqnames(peaks2),
+                      Start = start(peaks2), End = end(peaks2), Strand = strand(peaks2))
+    
+    #calculate the number of reads in each window for all bam files specified
+    tryCatch({
+      f_counts <- featureCounts(bamFiles, annot.ext=saf, useMetaFeatures=FALSE, allowMultiOverlap=TRUE, read2pos=read2pos,
+                                minOverlap=minOverlap, readExtension3=readExtension3, countMultiMappingReads=FALSE, fraction=FALSE,
+                                minMQS=minMQS, strandSpecific=strand, nthreads=20, verbose=FALSE, isPairedEnd=PairedEnd,
+                                splitOnly=splitOnly, nonSplitOnly=nonSplitOnly, readShiftType="downstream", readShiftSize=readShiftSize, 
+                                requireBothEndsMapped=requireBothEndsMapped)
+    }, error = function(e) {
+      stop(paste0("Error in featureCounts: ", conditionMessage(e), 
+                  "\nMake sure your BAM files are properly formatted and accessible."))
+    })
+    
+    #extract gene annotation (for peak names)
+    GeneID <- matrix(names(peaks2), nrow=length(peaks), ncol=length(windows), byrow=TRUE)[,1]
+    
+    #extract number of mapped reads for all bam samples
+    if (length(bamNames) > 1) {
+      mapped.reads <- apply(f_counts$stat[c(1,11,12), -1], 2, sum)
+    } else {
+      mapped.reads <- sum(f_counts$stat[c(1,11,12), -1])
+    }
+    
+    #extract counts for all samples, name columns and rows, calculate log CPM
+    all.counts <- vector("list", length(bamNames))
+    
+    for (bam.sample in seq_along(bamNames)) {
+      counts <- matrix(f_counts$counts[, bam.sample], nrow=length(peaks), ncol=length(windows), byrow=TRUE)
+      
+      colnames(counts) <- binmids
+      rownames(counts) <- GeneID
+      
+      #prepare counts or cpm for saving as list of matrices
+      if (useCPM == TRUE) {
+        all.counts[[bam.sample]] <- ((counts)/mapped.reads[bam.sample])*1000000
+      } else {
+        all.counts[[bam.sample]] <- counts
+      }
+      
+      # Check if there are names to sort by
+      if (!is.null(names(peaks)) && length(names(peaks)) == nrow(counts)) {
+        all.counts[[bam.sample]] <- all.counts[[bam.sample]][names(peaks), ]
+      }
+    }
+    
+    # give warning if all counts are 0
+    if (max(all.counts[[1]]) == 0) {
+      warning("All windows have 0 counts, make sure the chromosome names (seqnames) match between your GRanges object and bam files!")
+    }
+    
+    #return the results
+    names(all.counts) <- bamNames
+    return(all.counts)
+    
   } else {
-    mapped.reads <-  sum(f_counts$stat[c(1,11,12), -1])
+    stop("mode must be one of Q (QuasR) or F (FeatureCounts)!")
   }
-
-  #extract counts for all samples, name columns and rows, calculate log CPM
-  all.counts <- vector("list", length(bamNames))
-
-  for (bam.sample in seq_along(bamNames)){
-    counts <- matrix(f_counts$counts[,bam.sample],nrow=length(peaks),ncol=length(windows), byrow=TRUE)
-
-    colnames(counts) <- binmids
-   # rownames(counts) <- anno$GeneID
-    rownames(counts) <- GeneID
-
-    #prepare counts or cpm for saving as list of matrices
-    if (useCPM == TRUE) {
-      all.counts[[bam.sample]] <- ((counts)/mapped.reads[bam.sample])*1000000
-    } else {
-      all.counts[[bam.sample]] <- counts
-    }
-    #sort the rows by the original peak GRanges object order
-    all.counts[[bam.sample]] <- all.counts[[bam.sample]][names(peaks),]
-    
-  }
-  # give warning if all counts are 0
-  if(max(all.counts[[1]]) == 0){
-    warning("All windows have 0 counts, make sure the chromosome names (seqnames) match between your GRanges object and bam files!")
-  }
-  
-  #return the results
-  names(all.counts) <- bamNames
-  return(all.counts)
-  
-    } else {
-      warning("mode must be one of Q (QuasR) or F (FeatureCounts)!")
-    }
-  
 }
-

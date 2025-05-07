@@ -44,88 +44,266 @@
 #' CumulativePlots(counts,bamNames=bamNames,overlapNames="NA")
 #'
 #' @export
-CumulativePlots <- function(counts,bamNames=names(counts),span=2025,step=50,summarizing = "mean", overlapNames="NA", plot=TRUE, confInterval= .95,
-                            plotcols = c("violet","darkgrey"), overlapLabels = c("overlap", "no overlap")){
+CumulativePlots <- function(counts, bamNames=names(counts), span=2025, step=50, 
+                            summarizing="mean", overlapNames="NA", plot=TRUE, 
+                            confInterval=.95, plotcols=c("violet","darkgrey"), 
+                            overlapLabels=c("overlap", "no overlap")){
   
+  # Input validation
+  if (!is.list(counts)) {
+    stop("'counts' must be a list of matrices")
+  }
+  
+  if (length(counts) == 0) {
+    stop("'counts' list cannot be empty")
+  }
+  
+  # Check that each element in counts is a matrix
+  for (i in seq_along(counts)) {
+    if (!is.matrix(counts[[i]])) {
+      stop(paste0("Element ", i, " in 'counts' list is not a matrix"))
+    }
+  }
+  
+  # Ensure all matrices have the same dimensions
+  first_ncol <- ncol(counts[[1]])
+  first_nrow <- nrow(counts[[1]])
+  for (i in seq_along(counts)[-1]) {
+    if (ncol(counts[[i]]) != first_ncol) {
+      stop(paste0("Matrix ", i, " has ", ncol(counts[[i]]), " columns, but matrix 1 has ", first_ncol, " columns. All matrices should have the same number of columns."))
+    }
+    if (nrow(counts[[i]]) != first_nrow) {
+      stop(paste0("Matrix ", i, " has ", nrow(counts[[i]]), " rows, but matrix 1 has ", first_nrow, " rows. All matrices should have the same number of rows."))
+    }
+  }
+  
+  # Check bamNames
+  if (length(bamNames) != length(counts)) {
+    stop(paste0("Length of 'bamNames' (", length(bamNames), ") must match length of 'counts' (", length(counts), ")"))
+  }
+  
+  # Check span and step
+  if (!is.numeric(span) || span <= 0) {
+    stop("'span' must be a positive number")
+  }
+  
+  if (!is.numeric(step) || step <= 0) {
+    stop("'step' must be a positive number")
+  }
+  
+  if (step > span) {
+    warning("'step' is larger than 'span', which may lead to unexpected results")
+  }
+  
+  # Check summarizing function
+  valid_summarizing <- c("mean", "median", "sum", "min", "max")
+  if (!(summarizing %in% valid_summarizing) && !is.function(summarizing)) {
+    stop(paste0("'summarizing' must be one of: ", paste(valid_summarizing, collapse=", "), " or a custom function"))
+  }
+  
+  # Check confInterval
+  if (!is.numeric(confInterval) || confInterval < 0 || confInterval > 1) {
+    stop("'confInterval' must be a number between 0 and 1")
+  }
+  
+  # Check plot
+  if (!is.logical(plot)) {
+    stop("'plot' must be logical (TRUE or FALSE)")
+  }
+  
+  # Check plotcols
+  if (length(plotcols) != 2) {
+    stop("'plotcols' must be a vector of exactly 2 colors")
+  }
+  
+  # Check overlapLabels
+  if (length(overlapLabels) != 2) {
+    stop("'overlapLabels' must be a vector of exactly 2 labels")
+  }
+  
+  # Check for required packages
+  required_packages <- c("reshape2", "ggplot2", "tidyr", "tidyselect", "stats", "rlang")
+  missing_packages <- required_packages[!sapply(required_packages, requireNamespace, quietly = TRUE)]
+  if (length(missing_packages) > 0) {
+    stop(paste0("The following required packages are not installed: ", 
+                paste(missing_packages, collapse=", "), 
+                ". Please install them before using this function."))
+  }
+  
+  # Continue with function logic
   nwindows <- ceiling((span*2)/step)
   if(nwindows %% 2 == 0){
     nwindows <- nwindows + 1
   }
   
   regionwidth <- step * nwindows
-  windows <- seq(from=0,to=regionwidth-step,by=step)
+  windows <- seq(from=0, to=regionwidth-step, by=step)
   binmids <- windows - regionwidth/2 + step/2
   
-  avg.counts <- lapply(1:length(bamNames), matrix,  nrow=0, ncol=0)
-
+  avg.counts <- lapply(1:length(bamNames), matrix, nrow=0, ncol=0)
+  
   if (summarizing == "mean"){
     for (bam.sample in seq_along(bamNames)){
+      # Check for NA or Inf values in the counts matrix
+      if (any(is.na(counts[[bam.sample]]))) {
+        warning(paste0("NA values found in counts matrix for sample '", bamNames[bam.sample], "'. These will be propagated through calculations."))
+      }
+      if (any(is.infinite(counts[[bam.sample]]))) {
+        warning(paste0("Infinite values found in counts matrix for sample '", bamNames[bam.sample], "'. These may lead to unexpected results."))
+      }
+      
       mycounts <- log2(counts[[bam.sample]]+1)
       mycounts1 <- mycounts[row.names(mycounts) %in% overlapNames,]
       mycounts2 <- mycounts[row.names(mycounts) %in% overlapNames == FALSE,]
-
-      #claculate the mean, and the standard error for each binmids position across all peaks
-      avg.cts <- data.frame(mean_overlap1=apply(mycounts1,2,mean),
-                            mean_overlap2=apply(mycounts2,2,mean),
-                            se_overlap1 = apply(mycounts1,2,sd)/sqrt(nrow(mycounts1)),
-                            se_overlap2 = apply(mycounts2,2,sd)/sqrt(nrow(mycounts2)),
+      
+      # Check if any matrices are empty after filtering
+      if (nrow(mycounts1) == 0) {
+        warning(paste0("No rows match the overlapNames criteria for sample '", bamNames[bam.sample], "'. Using default values for overlap calculations."))
+        # Set default values to avoid errors
+        mycounts1 <- matrix(0, nrow=1, ncol=ncol(mycounts))
+      }
+      
+      if (nrow(mycounts2) == 0) {
+        warning(paste0("All rows match the overlapNames criteria for sample '", bamNames[bam.sample], "'. Using default values for non-overlap calculations."))
+        # Set default values to avoid errors
+        mycounts2 <- matrix(0, nrow=1, ncol=ncol(mycounts))
+      }
+      
+      #calculate the mean, and the standard error for each binmids position across all peaks
+      avg.cts <- data.frame(mean_overlap1=apply(mycounts1, 2, mean),
+                            mean_overlap2=apply(mycounts2, 2, mean),
+                            se_overlap1=apply(mycounts1, 2, sd)/sqrt(nrow(mycounts1)),
+                            se_overlap2=apply(mycounts2, 2, sd)/sqrt(nrow(mycounts2)),
                             position=binmids, name=bamNames[bam.sample])
-
-       #claculate the confidence intervals for each binmids position across all peaks
+      
+      #calculate the confidence intervals for each binmids position across all peaks
       #reference: http://www.cookbook-r.com/Manipulating_data/Summarizing_data/
       # Confidence interval multiplier for standard error
       # Calculate t-statistic for confidence interval:
       # e.g., if conf.interval is .95, use .975 (above/below), and use df=N-1
-      ciMult1 <- qt(confInterval/2 + .5, nrow(mycounts1)-1)
-      ciMult2 <- qt(confInterval/2 + .5, nrow(mycounts2)-1)
-
+      
+      # Handle single-row edge cases for t-distribution
+      if (nrow(mycounts1) > 1) {
+        ciMult1 <- qt(confInterval/2 + .5, nrow(mycounts1)-1)
+      } else {
+        ciMult1 <- 0
+        warning(paste0("Only one row in overlap group for sample '", bamNames[bam.sample], "'. Confidence intervals will be equal to the mean."))
+      }
+      
+      if (nrow(mycounts2) > 1) {
+        ciMult2 <- qt(confInterval/2 + .5, nrow(mycounts2)-1)
+      } else {
+        ciMult2 <- 0
+        warning(paste0("Only one row in non-overlap group for sample '", bamNames[bam.sample], "'. Confidence intervals will be equal to the mean."))
+      }
+      
       avg.cts$ci.upper_overlap1 <- avg.cts$mean_overlap1 + avg.cts$se_overlap1 * ciMult1
       avg.cts$ci.lower_overlap1 <- avg.cts$mean_overlap1 - avg.cts$se_overlap1 * ciMult1
-
+      
       avg.cts$ci.upper_overlap2 <- avg.cts$mean_overlap2 + avg.cts$se_overlap2 * ciMult2
       avg.cts$ci.lower_overlap2 <- avg.cts$mean_overlap2 - avg.cts$se_overlap2 * ciMult2
-
+      
       #add the data frame into the list of data frames for each bam sample
       avg.counts[[bam.sample]] <- avg.cts
     }
     #collapse the list into one long data frame with a column indication the bam sample name
-    avg.counts <- do.call("rbind",avg.counts)
-
+    avg.counts <- do.call("rbind", avg.counts)
+    
     if(plot==TRUE){
-      mean.plots.long <- avg.counts %>% pivot_longer(contains("overlap"),names_to = c(".value","overlap"),names_sep="_")
-      p <- ggplot(mean.plots.long,aes(x=.data$position,y=.data$mean)) + geom_smooth(aes(ymin=.data$ci.lower,ymax=.data$ci.upper,fill=.data$overlap,color=.data$overlap),stat="identity")
-      p <- p + facet_wrap(vars(.data$name),scales="free") + ylab("log2(cpm)") + theme_classic()
-      p <- p + scale_fill_manual(values=plotcols,labels = overlapLabels)
-      p <- p + scale_color_manual(values=plotcols,labels = overlapLabels)
-      return(p)
+      # Check if tidyr is available for pivot_longer
+      if (!requireNamespace("tidyr", quietly = TRUE)) {
+        stop("Package 'tidyr' is required for plotting. Please install it.")
+      }
+      
+      tryCatch({
+        mean.plots.long <- avg.counts %>% tidyr::pivot_longer(tidyselect::contains("overlap"), 
+                                                              names_to = c(".value", "overlap"), 
+                                                              names_sep="_")
+        p <- ggplot2::ggplot(mean.plots.long, ggplot2::aes(x=.data$position, y=.data$mean)) + 
+          ggplot2::geom_smooth(ggplot2::aes(ymin=.data$ci.lower, ymax=.data$ci.upper, 
+                                            fill=.data$overlap, color=.data$overlap), stat="identity")
+        p <- p + ggplot2::facet_wrap(ggplot2::vars(.data$name), scales="free") + 
+          ggplot2::ylab("log2(cpm)") + ggplot2::theme_classic()
+        p <- p + ggplot2::scale_fill_manual(values=plotcols, labels=overlapLabels)
+        p <- p + ggplot2::scale_color_manual(values=plotcols, labels=overlapLabels)
+        return(p)
+      }, error = function(e) {
+        stop(paste0("Error in creating plot: ", e$message))
+      })
     } else {
       return(avg.counts)
     }
-
+    
   } else {
-
+    # For other summarizing functions
     for (bam.sample in seq_along(bamNames)){
       mycounts <- log2(counts[[bam.sample]]+1)
       mycounts1 <- mycounts[row.names(mycounts) %in% overlapNames,]
       mycounts2 <- mycounts[row.names(mycounts) %in% overlapNames == FALSE,]
-
-      avg.cts <- data.frame(overlap.mean=apply(mycounts1,2,summarizing),
-                            no.overlap.mean=apply(mycounts2,2,summarizing),
-                            position=binmids, name=bamNames[bam.sample])
-      #add the data frame into the list of data frames for each bam sample
+      
+      # Check if any matrices are empty after filtering
+      if (nrow(mycounts1) == 0) {
+        warning(paste0("No rows match the overlapNames criteria for sample '", bamNames[bam.sample], "'. Using default values for overlap calculations."))
+        # Set default values to avoid errors
+        mycounts1 <- matrix(0, nrow=1, ncol=ncol(mycounts))
+      }
+      
+      if (nrow(mycounts2) == 0) {
+        warning(paste0("All rows match the overlapNames criteria for sample '", bamNames[bam.sample], "'. Using default values for non-overlap calculations."))
+        # Set default values to avoid errors
+        mycounts2 <- matrix(0, nrow=1, ncol=ncol(mycounts))
+      }
+      
+      # Handle custom function or named function
+      if (is.function(summarizing)) {
+        tryCatch({
+          overlap_result <- apply(mycounts1, 2, summarizing)
+          no_overlap_result <- apply(mycounts2, 2, summarizing)
+        }, error = function(e) {
+          stop(paste0("Error applying custom summarizing function: ", e$message))
+        })
+      } else {
+        # For named functions like "median", "sum", etc.
+        summarizing_fn <- match.fun(summarizing)
+        tryCatch({
+          overlap_result <- apply(mycounts1, 2, summarizing_fn)
+          no_overlap_result <- apply(mycounts2, 2, summarizing_fn)
+        }, error = function(e) {
+          stop(paste0("Error applying summarizing function '", summarizing, "': ", e$message))
+        })
+      }
+      
+      avg.cts <- data.frame(overlap.mean = overlap_result,
+                            no.overlap.mean = no_overlap_result,
+                            position = binmids, 
+                            name = bamNames[bam.sample])
+      
+      # Add the data frame into the list of data frames for each bam sample
       avg.counts[[bam.sample]] <- avg.cts
     }
-    #collapse the list into one long data frame with a column indication the bam sample name
-
-    avg.counts <- do.call("rbind",avg.counts)
-
-  if(plot==TRUE){
-    avg.counts.long <- melt(avg.counts,id.vars=c("name","position"))
-    p <- ggplot(avg.counts.long,aes(x=.data$position, y=.data$value)) + geom_line(aes(color=.data$variable)) + facet_wrap(vars(.data$name),scales="free")
-    p <- p + theme_classic() + ylab("log2(cpm)") + scale_color_manual(values=plotcols,labels = overlapLabels)
-    return(p)
-  } else {
-  return(avg.counts)
-  }
+    
+    # Collapse the list into one long data frame with a column indicating the bam sample name
+    avg.counts <- do.call("rbind", avg.counts)
+    
+    if (plot == TRUE) {
+      # Check if reshape2 is available for melt
+      if (!requireNamespace("reshape2", quietly = TRUE)) {
+        stop("Package 'reshape2' is required for plotting. Please install it.")
+      }
+      
+      tryCatch({
+        avg.counts.long <- reshape2::melt(avg.counts, id.vars=c("name", "position"))
+        p <- ggplot2::ggplot(avg.counts.long, ggplot2::aes(x = .data$position, y = .data$value)) + 
+          ggplot2::geom_line(ggplot2::aes(color = .data$variable)) + 
+          ggplot2::facet_wrap(ggplot2::vars(.data$name), scales = "free")
+        p <- p + ggplot2::theme_classic() + ggplot2::ylab("log2(cpm)") + 
+          ggplot2::scale_color_manual(values = plotcols, labels = overlapLabels)
+        return(p)
+      }, error = function(e) {
+        stop(paste0("Error in creating plot: ", e$message))
+      })
+    } else {
+      return(avg.counts)
+    }
   }
 }
