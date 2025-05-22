@@ -88,7 +88,7 @@ for (i in seq_along(topn)){
     } else {
       args <- paste(fastafile,dna,mode,motiflen,nmotifs,maxsize,outputfile,sep=" ")
           }
-  meme.call <- paste("bash -cl 'module load MEME/5.1.1-foss-2019b-Python-3.7.4 && meme",args,"'",sep=" ")
+  meme.call <- paste("bash -cl 'module load MEME/5.0.5 && meme",args,"'",sep=" ")
   system(meme.call,wait=FALSE)
   }
 
