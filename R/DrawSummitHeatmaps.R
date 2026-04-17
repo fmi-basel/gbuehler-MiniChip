@@ -479,14 +479,31 @@ DrawSummitHeatmaps <- function(counts, bamNames=names(counts), plotcols= rep("da
             target_rows <- max(1, round(TargetHeight * split.fracs[g]))
             counts.subset <- counts.sorted[row_split1 == split.groups[g], , drop=FALSE]
             
+            # Debug information
+            cat("Group:", split.groups[g], "\n")
+            cat("target_rows:", target_rows, "\n")
+            cat("nrow(counts.subset):", nrow(counts.subset), "\n")
+            cat("ncol(counts.subset):", ncol(counts.subset), "\n")
+            
             if (nrow(counts.subset) > 0) {
+              
+              if (target_rows > nrow(counts.subset)) {
+                warning(paste0("target_rows (", target_rows, ") > available rows (", 
+                               nrow(counts.subset), ") for group ", split.groups[g]))
+                target_rows <- nrow(counts.subset)  # Don't try to expand
+              }
+              
+              if (target_rows > 0 && nrow(counts.subset) > 0) {
               counts.sorted.split[[g]] <- redim_matrix(
                 counts.subset, 
                 target_height = target_rows, 
                 target_width = ncol(counts.sorted)
               )
               row_split <- c(row_split, rep(split.groups[g], nrow(counts.sorted.split[[g]])))
-            } else {
+              }
+            } 
+            
+            else {
               warning(paste0("No rows found for group ", split.groups[g], ". Skipping this group."))
             }
           }

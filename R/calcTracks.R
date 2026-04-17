@@ -171,10 +171,10 @@ calcTracks <- function(bigwigFiles, bigwigNames, bigwigGroupNames, ROI, Coverage
       for_plotting <- as.data.frame(bwf)
       
       # Expand scores and indices
-      expanded_scores <- unlist(mapply(rep, for_plotting$score, for_plotting$width))
-      expanded_seqnames <- unlist(mapply(rep, for_plotting$seqnames, for_plotting$width))
-      expanded_index <- unlist(mapply(function(start, width) seq(start, by = 1, length.out = width), 
-                                      for_plotting$start, for_plotting$width))
+      expanded_scores <- unlist(as.list(mapply(rep, for_plotting$score, for_plotting$width)))
+      expanded_seqnames <- unlist(as.list(mapply(rep, for_plotting$seqnames, for_plotting$width)))
+      expanded_index <- unlist(as.list(mapply(function(start, width) seq(start, by = 1, length.out = width), 
+                                      for_plotting$start, for_plotting$width)))
       
       # Create a new data frame for coverage
       coverage_table <- data.frame(
@@ -197,6 +197,7 @@ calcTracks <- function(bigwigFiles, bigwigNames, bigwigGroupNames, ROI, Coverage
   if (length(coverage_data_list) == 0) {
     stop("Error: No coverage data could be extracted from any of the bigwig files. Please check your files and ROI.")
   }
+  
   
   # Combine all the coverage data into a single data frame
   combined_coverage <- do.call(rbind, coverage_data_list)
